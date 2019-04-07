@@ -6,6 +6,7 @@ import numpy as np
 # Capture_Segments are trios of indices that represent three squares aligned and
 # consecutive in the board(Vertical or Horizontal).
 #
+# camp_segments is an index square -> group of board's elements that represents a camp
 # rev_segments  is an index square -> group of trios-segments to ckeck for captures
 # move_segments is an index square -> group of line-segments that pass by the square(the row and the column that pass from a i-j element of the board)
 # possible_move_segments is an index square -> group of variable-segments used to get all possible moves
@@ -16,6 +17,8 @@ col = row = 9
 
 capture_segments        = []
 all_cross               = []
+camps                   = []
+camp_segments           = [[] for x in range(col*row)]
 cross_center_segments   = [[] for x in range(col*row)]
 rev_segments            = [[] for x in range(col*row)]
 move_segments           = [[] for x in range(col*row)]
@@ -115,30 +118,54 @@ for t in range(len(_indices)-2):
     trios = _indices[t:t+3]
     add_cross(trios[0],trios[1],trios[2])
 
-#the 4 corners of the board
-winning_el.append(_indices[0][0])
-winning_el.append(_indices[0][-1])
-winning_el.append(_indices[-1][0])
-winning_el.append(_indices[-1][-1])
+def add_winning_el(line):
+    for x in line:
+        if x not in winning_el:
+            winning_el.append(x)
 
-#Black pieces can not take corners of throne position
-prohibited_black_el = winning_el.copy()
+def add_camp(line1, line2):
+    seg = line1[int(len(line1)/2)-1:int(len(line1)/2)+2]
+    seg = np.append(seg, line2[int(len(line2)/2)])
+    camps.append(seg)
+    for c in seg:
+        camp_segments[c].append(seg)
+
+add_camp(_indices[0], _indices[1])
+add_camp(_indices.transpose()[-1], _indices.transpose()[-2])
+add_camp(_indices[-1], _indices[-2])
+add_camp(_indices.transpose()[0], _indices.transpose()[1])
+
+#every board elements
+add_winning_el(_indices[0])
+add_winning_el(_indices[-1])
+add_winning_el(_indices.transpose()[0])
+add_winning_el(_indices.transpose()[-1])
+
+#Black pieces can not never take throne position. The black prohibited elements are dynamic with an evaluation that depends on FROM moving index.(checked in Board.py)
 prohibited_black_el.append(king.flatten().dot(_indices.flatten()))
-#White like Black pieces
-prohibited_white_el = prohibited_black_el.copy()
 
-#King in this version of tablut can go wherever he wants
-#prohibited_king_el.append(king.flatten().dot(_indices.flatten())) the king can move wherever he wants
+
+#White prohibited elements. Whites can not go to the throne(even if it is empty) and camps
+prohibited_white_el = prohibited_black_el.copy()
+for c in camps:
+    for el in c:
+        prohibited_white_el.append(el)
+
+
+prohibited_king_el = prohibited_black_el.copy()
 throne_el = king.flatten().dot(_indices.flatten())
 
 #np.asarray Trasformation
-capture_segments = np.asarray(capture_segments)
-all_cross = np.asarray(all_cross)
-winning_el = np.asarray(winning_el)
-prohibited_black_el = np.asarray(prohibited_black_el)
-prohibited_white_el = np.asarray(prohibited_white_el)
-prohibited_king_el = np.asarray(prohibited_king_el)
-rev_segments = np.asarray([np.asarray(x) for x in rev_segments])
-move_segments = np.asarray([np.asarray(x) for x in move_segments])
-possible_move_segments = np.asarray([np.asarray(x) for x in possible_move_segments])
-del col, row, trios, t
+capture_segments        = np.asarray(capture_segments)
+all_cross               = np.asarray(all_cross)
+winning_el              = np.asarray(winning_el)
+prohibited_black_el     = np.asarray(prohibited_black_el)
+prohibited_white_el     = np.asarray(prohibited_white_el)
+prohibited_king_el      = np.asarray(prohibited_king_el)
+camp_segments           = np.asarray([np.asarray(x) for x in camp_segments])
+cross_center_segments   = np.asarray(cross_center_segments)
+rev_segments            = np.asarray([np.asarray(x) for x in rev_segments])
+move_segments           = np.asarray([np.asarray(x) for x in move_segments])
+possible_move_segments  = np.asarray([np.asarray(x) for x in possible_move_segments])
+
+del col, row, trios, t, c, el
