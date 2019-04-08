@@ -255,9 +255,9 @@ class Board(object):
         y = pos[moving].flatten()
         indices = _indices.flatten()
         yi = y*indices
-        yi = yi[yi>0]
+        yi = yi[yi>0]#tutti gli indici in cui il player moving ha delle pedine
         for imoves in possible_move_segments[yi]:
-            for smove in imoves:
+            for smove in imoves:#DA CAMBIARE
                 board = original_board.copy()
                 if not original_board[smove[0]] == KING_VALUE:
                     board[winning_el] = obstacle
@@ -271,7 +271,7 @@ class Board(object):
         
     #Conversion from ('0-48', '0-48') to ('letter''number', 'letter''number')
     @classmethod
-    def coordinates_int_to_string(self, m, col=COL, row=ROW):
+    def coordinates_int_to_string(cls, m, col=COL, row=ROW):
         if not isinstance(m, tuple):
             raise ValueError('Move conversion Error: m is not a tuple')
 
