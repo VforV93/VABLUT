@@ -1,6 +1,6 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
-from modules.tables import _indices, blacks, whites, king, move_segments, rev_segments
+from modules.tables import _indices, blacks, whites, king, move_segments, rev_segments, winning_el, prohibited_black_el, prohibited_white_el, prohibited_king_el, throne_el, possible_move_segments
 from random import shuffle
 
 COL = int(len(_indices[0]))
@@ -16,7 +16,7 @@ class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER1, end=COMPUTE, cols=7, rows=7):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, cols=9, rows=9):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
         self._pos = pos
@@ -43,9 +43,9 @@ class Board(object):
         return (PLAYER1*self._pos[PLAYER1]+PLAYER2*self._pos[PLAYER2][0]+KING_VALUE*self._pos[PLAYER2][1])
     
     def _check_end(self, pos, last_move=None):
+        if KING_VALUE in self.win_segments(pos):
+            return PLAYER2
 # =============================================================================
-#         if KING_VALUE in self.win_segments(pos):
-#             return PLAYER2
 #         
 #         if last_move is not None:
 #             if pos.flatten()[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
@@ -208,17 +208,18 @@ class Board(object):
             i_from = int(FROM/len(line))
             i_to = int(TO/len(line))
 
+        if i_to is None or i_from is None:
+            raise ValueError('FROM and TO not in the same orthogonal segment')
+        
         if i_to < i_from:
             line = line[i_to:i_from+1]
         else:
             line = line[i_from:i_to+1]
         ret = pos.flatten()
-    
-        if line is not None:
-            return ret[line]
-        else:
-            raise ValueError('FROM and TO not in the same orthogonal segment')
-
+        
+        return ret[line]
+       
+    #Return the trios-pos vector where TO is the first or last element
     @classmethod     
     def capture_segments(cls, pos, TO):
         if isinstance(pos, Board):
@@ -229,8 +230,9 @@ class Board(object):
                 ret.append(pos[c])
             return np.asarray(ret)
     
+    #Transform a compact board's raffiguration(2-Dmatric with 0,1,2,3 elements) to the corresponding dictionary raffiguration 
     @classmethod
-    def from_pos_to_dic(cls, pos, col, row):
+    def from_pos_to_dic(cls, pos, col=COL, row=ROW):
         ret = {PLAYER1:np.asarray([],dtype=int), PLAYER2: (np.asarray([],dtype=int),np.asarray([],dtype=int))}
         b, w, k = pos.copy(), pos.copy()-1, pos.copy()-2
         
@@ -268,17 +270,16 @@ class Board(object):
         return ret
         
     #Conversion from ('0-48', '0-48') to ('letter''number', 'letter''number')
-    def coordinates_int_to_string(self, m):
+    @classmethod
+    def coordinates_int_to_string(self, m, col=COL, row=ROW):
         if not isinstance(m, tuple):
             raise ValueError('Move conversion Error: m is not a tuple')
-        
-        col = len(self.pos[0])
-        #row = len(self.pos[:,0])
+
         
         FROM, TO = int(m[0]), int(m[1])
-        alp = { 1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G' }
+        alp = { 1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'I' }
         
-        if ((FROM not in range(0, len(self.pos.flatten()))) or (TO not in range(0, len(self.pos.flatten())))):
+        if ((FROM not in range(0, int(col*row))) or (TO not in range(0, int(col*row)))):
             raise ValueError(m)
         
         FROM = alp[int(FROM%col)+1]+str(int(FROM/col)+1)
