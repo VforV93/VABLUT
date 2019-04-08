@@ -152,12 +152,13 @@ for c in camps:
         prohibited_white_el.append(el)
 
 
-prohibited_king_el = prohibited_black_el.copy()
+prohibited_king_el = prohibited_white_el.copy()
 throne_el = king.flatten().dot(_indices.flatten())
 
 #np.asarray Trasformation
 capture_segments        = np.asarray(capture_segments)
 all_cross               = np.asarray(all_cross)
+camps                   = np.asarray(camps)
 winning_el              = np.asarray(winning_el)
 prohibited_black_el     = np.asarray(prohibited_black_el)
 prohibited_white_el     = np.asarray(prohibited_white_el)
