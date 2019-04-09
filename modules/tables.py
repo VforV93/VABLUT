@@ -33,14 +33,14 @@ prohibited_king_el = []                             #throne if king leaves the p
 _indices = np.arange(col*row).reshape((col, row))
 
 #DEFAULT: Starting position of the game
-blacks = np.array([[0,0,0,1,1,1,0,0,0],
+blacks = np.array([[0,0,0,1,1,0,0,0,0],
                    [0,0,0,0,1,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,0,0,0,1],
+                   [0,0,0,0,0,0,0,0,1],
                    [1,1,0,0,0,0,0,1,1],
                    [1,0,0,0,0,0,0,0,1],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
                    [0,0,0,1,1,1,0,0,0]])
 
 whites = np.array([[0,0,0,0,0,0,0,0,0],

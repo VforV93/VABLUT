@@ -12,7 +12,7 @@ DRAW = 0
 COMPUTE = -1
 KING_VALUE = 3 #MUST be different from PLAYER1 and PLAYER2
 
-#prohibited_segments is a dictionary containing an index square for every kind of pieces(white, king and black) -> group of prohibited indices used to modify the pos game board to generate all moves or check camptures
+# prohibited_segments is a dictionary containing an index square for every kind of pieces(white, king and black) -> group of prohibited indices used to modify the pos game board to generate all moves or check camptures
 prohibited_segments = {PLAYER1: [[] for x in range(COL*ROW)], PLAYER2: [[] for x in range(COL*ROW)], KING_VALUE: [[] for x in range(COL*ROW)]}
 
 mask = np.ones(COL*ROW, dtype=bool)
@@ -46,7 +46,18 @@ for i,x in enumerate(camps):#...prohibited camp elements update
     for el in x:        
         prohibited_segments[PLAYER1][el] = np.concatenate((prohibited_black_el, camps[:i].flatten(), camps[i+1:].flatten()))
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
-
+# king_capture_segments
+king_capture_segments = [[] for x in range(COL*ROW)]
+for trios_captures in rev_segments:
+    for s in trios_captures:
+        print(s)
+        t = king_capture_segments[s[1]].copy()
+        if s not in t:
+            print(king_capture_segments[s[1]])
+            king_capture_segments[s[1]].append(2)
+       # print(king_capture_segments[s[1]])
+        #king_capture_segments[s[1]].append(s.copy())
+# === === === === === === === === === === === === === === === === === === === === === === === === === === 
 class WrongMoveError(Exception):
     pass
 
@@ -279,10 +290,21 @@ class Board(object):
         ret[PLAYER2] = (w.reshape((col,row)),k.reshape((col,row)))
         return ret
     
+    #the actual and real pos(board configuration) is updated setting the prohibited elements for piece = piece if the element is empty
+    @classmethod
+    def pos_update(cls, pos, FROM):
+        pos = pos.flatten()        
+        piece = pos[FROM] #1:black 2:white 3:king
+        if piece == 0:
+            return pos
+        mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
+        seg = prohibited_segments[piece][FROM]
+        pos[seg[mask]] = piece
+        return pos
+    
     def get_all_moves(self):
         ret = []
         moving = self.stm
-        obstacle = self.other
         original_board = self.pos.flatten()
         
         pos = {PLAYER1: self._pos[PLAYER1].copy(), PLAYER2: self._pos[PLAYER2][0].copy()+self._pos[PLAYER2][1].copy()}
@@ -292,16 +314,12 @@ class Board(object):
         yi = y*indices
         yi = yi[yi>0]#tutti gli indici in cui il player moving ha delle pedine
         for imoves in possible_move_segments[yi]:
-            for smove in imoves:#DA CAMBIARE
+            for smove in imoves:#smove[0] FROM index element
                 board = original_board.copy()
-                if not original_board[smove[0]] == KING_VALUE:
-                    board[winning_el] = obstacle
-                    if board[throne_el] == 0:
-                        board[throne_el] = obstacle
-                
+                board = self.pos_update(board, smove[0])
                 if board[smove].sum() == original_board[smove[0]]:
                     ret.append(self.coordinates_int_to_string((smove[0], smove[-1])))
-        shuffle(ret)
+        #shuffle(ret)
         return ret
         
     #Conversion from ('0-48', '0-48') to ('letter''number', 'letter''number')
