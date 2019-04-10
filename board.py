@@ -1,63 +1,12 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
-from modules.tables import _indices, blacks, whites, king, camps, move_segments, rev_segments, winning_el, prohibited_black_el, prohibited_white_el, prohibited_king_el, throne_el, possible_move_segments
+from modules.tables import _indices, move_segments, rev_segments, possible_move_segments
+from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, blacks, whites, king, throne_el, king_capture_segments, winning_el, prohibited_black_el, prohibited_white_el, prohibited_king_el, prohibited_segments
 from random import shuffle
 
 COL = int(len(_indices[0]))
 ROW = int(len(_indices.transpose()[0]))
 
-PLAYER1 = 1
-PLAYER2 = 2
-DRAW = 0
-COMPUTE = -1
-KING_VALUE = 3 #MUST be different from PLAYER1 and PLAYER2
-
-# prohibited_segments is a dictionary containing an index square for every kind of pieces(white, king and black) -> group of prohibited indices used to modify the pos game board to generate all moves or check camptures
-prohibited_segments = {PLAYER1: [[] for x in range(COL*ROW)], PLAYER2: [[] for x in range(COL*ROW)], KING_VALUE: [[] for x in range(COL*ROW)]}
-
-mask = np.ones(COL*ROW, dtype=bool)
-
-w_mask = mask.copy()
-w_mask[prohibited_white_el] = False
-iw = _indices.flatten()*whites.flatten() #whites starting indices
-iw=iw[iw>0]
-w_mask[iw] = True
-for pwe in _indices.flatten()[w_mask]:
-    prohibited_segments[PLAYER2][pwe] = prohibited_white_el.copy()
-
-
-k_mask = mask.copy()
-k_mask[prohibited_king_el] = False
-ik = _indices.flatten()*king.flatten() #king starting indices
-ik=ik[ik>0]
-k_mask[ik] = True
-for pwe in _indices.flatten()[k_mask]:
-    prohibited_segments[KING_VALUE][pwe] = prohibited_king_el.copy()
-prohibited_segments[KING_VALUE][_indices.flatten().dot(king.flatten())] = prohibited_king_el.copy()
-
-b_mask = mask.copy()
-b_mask[prohibited_black_el] = False
-ib = _indices.flatten()*blacks.flatten() #king starting indices
-ib=ib[ib>0]
-b_mask[ib] = True
-for pwe in _indices.flatten()[b_mask]:
-    prohibited_segments[PLAYER1][pwe] = np.concatenate((prohibited_black_el, camps.flatten()))#for each elements, default prohibited are all camps el...
-for i,x in enumerate(camps):#...prohibited camp elements update
-    for el in x:        
-        prohibited_segments[PLAYER1][el] = np.concatenate((prohibited_black_el, camps[:i].flatten(), camps[i+1:].flatten()))
-# === === === === === === === === === === === === === === === === === === === === === === === === === === 
-# king_capture_segments
-king_capture_segments = [[] for x in range(COL*ROW)]
-for trios_captures in rev_segments:
-    for s in trios_captures:
-        print(s)
-        t = king_capture_segments[s[1]].copy()
-        if s not in t:
-            print(king_capture_segments[s[1]])
-            king_capture_segments[s[1]].append(2)
-       # print(king_capture_segments[s[1]])
-        #king_capture_segments[s[1]].append(s.copy())
-# === === === === === === === === === === === === === === === === === === === === === === === === === === 
 class WrongMoveError(Exception):
     pass
 
