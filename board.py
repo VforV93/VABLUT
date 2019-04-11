@@ -1,7 +1,7 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
 from modules.tables import _indices, move_segments, rev_segments, possible_move_segments
-from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, blacks, whites, king, throne_el, king_capture_segments, winning_el, prohibited_black_el, prohibited_white_el, prohibited_king_el, prohibited_segments
+from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments
 from random import shuffle
 
 COL = int(len(_indices[0]))
@@ -100,22 +100,9 @@ class Board(object):
             raise ValueError(m)
         
         check_pos = self.pos
-        col = len(check_pos[0])
-        row = len(check_pos[:,0])
 
         #Conversation from ('letter''number', 'letter''number') to ('0-48', '0-48')
-        FROM, TO = m[0], m[1]
-        alp = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
-        
-        if ((FROM[0] not in alp) or (TO[0] not in alp) or (int(FROM[1]) not in range(1,row+1)) or (int(TO[1]) not in range(1,row+1))):
-            raise ValueError(m)
-        
-        FROM, TO = ((int(FROM[1])-1)*col)+alp[FROM[0]]-1, ((int(TO[1])-1)*col)+alp[TO[0]]-1
-        #===---===---===---===---===---===---===---===---===---===---===---===
-        #checking FROM and TO in range(0-->col*row-1)
-        if ((FROM<0) or (TO<0) or (FROM >= len(self.pos.flatten())) or (TO >= len(self.pos.flatten()))):
-            raise WrongMoveError('Not Permitted: Value/s not in range')
-            
+        FROM, TO = self.coordinates_string_to_int(m)
         #print('FROM: %s, TO:%s'%(FROM,TO))
         
         #FROM piece must be a self.stm piece(if stm == PLAYER2, FROM can be W or K)
@@ -125,61 +112,37 @@ class Board(object):
         if not (check_pos.flatten()[TO] == 0):
             raise WrongMoveError('Not Permitted: TO Value not empty')
             
-        #Corners non permitted for B and W, throne non permitted for B, W and K
-        if self.stm == PLAYER1:
-            if (TO in prohibited_black_el):
-                raise WrongMoveError('Not Permitted: TO Value in corners or prohibited_black_el')
-        elif self.stm == PLAYER2:
-            if (check_pos.flatten()[FROM] == KING_VALUE):#Moving the King piece
-                if (TO in prohibited_king_el):
-                    raise WrongMoveError('Not Permitted: TO Value in prohibited_king_el(%s,%s)'%m)
-            else:
-                if (TO in prohibited_white_el):
-                    raise WrongMoveError('Not Permitted: TO Value in prohibited_white_el')
-        #===---===---===---===---===---===---===---===---===---===---===---===
-        #Movement non oblique
-        if not ((TO in move_segments[FROM][0]) or (TO in move_segments[FROM][1])):
-            raise WrongMoveError('Not Permitted: FROM-TO movement can not be oblique')
+        check_drug_pos = self.pos_update(check_pos, FROM)
 
         #Free space in movement(FROM-TO)
-        mov = self.orthogonal_segment(check_pos,FROM,TO)
-        if not mov.sum()==check_pos.flatten()[FROM]:
+        try:
+            mov = self.orthogonal_segment(check_drug_pos,FROM,TO)
+        except:
+            raise WrongMoveError('Not Permitted: FROM-TO movement can not be oblique')
+        
+        if not mov.sum()==check_drug_pos[FROM]:
             raise WrongMoveError('Not Permitted: FROM-TO movement not free')
         
         #"move" the piece FROM -> TO
         check_pos_ret = check_pos.flatten()
         check_pos_ret[TO] = check_pos_ret[FROM]
         check_pos_ret[FROM] = 0
-
-        #
         check_pos = check_pos_ret.copy()
-        old_winning = check_pos[winning_el]
-        check_pos[winning_el] = self.stm
-        old_throne = None
-        if check_pos[throne_el] == 0:
-            check_pos[throne_el] = self.stm
-            old_throne = 0
         
-        #print(check_pos.reshape((col,row)))
+        check_drug_pos = self.pos_update(check_pos, TO)
         
         #Captures Check
         for s in rev_segments[TO]:
-            seg = check_pos[s].copy()
-            seg[seg==3] = PLAYER2
+            seg = check_drug_pos[s].copy()
+            seg[seg==KING_VALUE] = PLAYER2
             c = np.bincount(seg)
             if c[0] or len(c)!=3:
                 continue
             if c[self.stm]==2:
-                update = check_pos[s].copy()
-                update[1]=0
-                check_pos[s] = update
-        
-        check_pos[winning_el] = old_winning
-        if old_throne is not None:
-            check_pos[throne_el] = old_throne
+                seg[1]=0
+                check_pos[s] = seg
             
-        future_pos = self.from_pos_to_dic(check_pos, col, row)
-        #print(future_pos)
+        future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
         return Board(future_pos, self.other, self._check_end(check_pos, TO))
     
     #Return the vector between FROM and TO
@@ -260,7 +223,7 @@ class Board(object):
                 board = self.pos_update(board, smove[0])
                 if board[smove].sum() == original_board[smove[0]]:
                     ret.append(self.coordinates_int_to_string((smove[0], smove[-1])))
-        #shuffle(ret)
+        shuffle(ret)
         return ret
         
     #Conversion from ('0-48', '0-48') to ('letter''number', 'letter''number')
@@ -278,6 +241,21 @@ class Board(object):
         
         FROM = alp[int(FROM%col)+1]+str(int(FROM/col)+1)
         TO = alp[int(TO%col)+1]+str(int(TO/col)+1)
+        return (FROM, TO)
+    #===---===---===---===---===---===---===---===---===---===---===---===
+    #Conversion from ('letter''number', 'letter''number') to ('0-48', '0-48')
+    @classmethod
+    def coordinates_string_to_int(cls, m, col=COL, row=ROW):
+        if not isinstance(m, tuple):
+            raise ValueError('Move conversion Error: m is not a tuple')
+
+        FROM, TO = m[0], m[1]
+        alp = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
+        
+        if ((FROM[0] not in alp) or (TO[0] not in alp) or (int(FROM[1]) not in range(1,row+1)) or (int(TO[1]) not in range(1,row+1))):
+            raise ValueError(m)
+        
+        FROM, TO = ((int(FROM[1])-1)*col)+alp[FROM[0]]-1, ((int(TO[1])-1)*col)+alp[TO[0]]-1 
         return (FROM, TO)
     #===---===---===---===---===---===---===---===---===---===---===---===
     
