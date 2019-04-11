@@ -48,20 +48,16 @@ class Board(object):
             pos = pos.flatten()
             if pos[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
                 return PLAYER1
-            
+            #pos drug
             pos = self.pos_update(pos, last_move)
-# =============================================================================
-#             pos[winning_el] = PLAYER1   MODIFICO LA SCHACCHIERA PER LA VERIFICA DELLA VITTORIA
-#             if not pos[throne_el] == KING_VALUE:
-#                 pos[throne_el] = PLAYER1
-# =============================================================================
-                
-            for seg in self.capture_segments(pos, last_move):
-                c = np.bincount(seg)
-                if not seg[1] == KING_VALUE:
-                    continue
-                elif c[PLAYER1] == len(seg)-1:
-                    return PLAYER1
+
+            i_king = _indices.flatten()[pos == KING_VALUE][0]
+
+            for seg in king_capture_segments[i_king]:
+                if last_move in seg:
+                    c = np.bincount(pos[seg])
+                    if c[PLAYER1] == len(seg)-1:
+                        return PLAYER1
         return None
     
     @classmethod
