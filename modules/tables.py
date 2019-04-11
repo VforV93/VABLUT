@@ -6,10 +6,10 @@ import numpy as np
 # Capture_Segments are trios of indices that represent three squares aligned and
 # consecutive in the board(Vertical or Horizontal).
 #
-# rev_segments  is an index square -> group of trios-segments to ckeck for captures
-# move_segments is an index square -> group of line-segments that pass by the square(the row and the column that pass from a i-j element of the board)
-# possible_move_segments is an index square -> group of variable-segments used to get all possible moves
-# cross_center_segments  is an index square -> group of 1 segments to check the cross capture of the king. 1st element is the middle elemente ofthe cross.
+# rev_segments              is an index square -> group of trios-segments to ckeck for captures
+# move_segments             is an index square -> group of line-segments that pass by the square(the row and the column that pass from a i-j element of the board)
+# possible_move_segments    is an index square -> group of variable-segments used to get all possible moves
+# cross_center_segments     is an index square -> group of 1 segments to check the cross capture of the king. 1st element is the middle elemente of the cross.
 #
 
 col = row = 9
@@ -66,7 +66,7 @@ for l_row in _indices:
     add_possible_move(l_row[::-1])
     
 for l_col in _indices.transpose():
-    add_rev(l_col)
+    add_rev(l_col) 
     add_move(l_col)
     add_possible_move(l_col)
     add_possible_move(l_col[::-1])

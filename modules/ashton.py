@@ -1,8 +1,7 @@
 # camp_segments is an index square -> group of board's elements that represents a camp
 # king_capture_segments  is an index square -> group of 1 segments(3 or 5 elements) to check the king camptures
-
 import numpy as np
-from tables import col, row, capture_segments, cross_center_segments, _indices
+from .tables import col, row, capture_segments, cross_center_segments, _indices
 
 PLAYER1 = 1
 PLAYER2 = 2
@@ -24,7 +23,7 @@ blacks = np.array([[0,0,0,1,1,0,0,0,0],
                    [0,0,0,0,1,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,1],
-                   [1,1,0,0,0,0,0,1,1],
+                   [1,1,0,0,0,0,0,1,0],
                    [1,0,0,0,0,0,0,0,1],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
@@ -49,6 +48,37 @@ king  =  np.array([[0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0]])
+# =============================================================================
+# blacks = np.array([[0,0,0,1,1,0,0,0,0],
+#                    [0,0,0,0,1,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,1],
+#                    [1,1,0,0,0,0,0,0,0],
+#                    [1,0,0,0,0,0,1,0,1],
+#                    [0,0,0,0,0,0,0,1,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0]])
+# 
+# whites = np.array([[0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0]])
+# 
+# king  =  np.array([[0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,1,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0],
+#                    [0,0,0,0,0,0,0,0,0]])
+# =============================================================================
 throne_el = king.flatten().dot(_indices.flatten())
 
 
@@ -70,10 +100,10 @@ def add_winning_el(line):
         if x not in winning_el:
             winning_el.append(x)
 #every border elements
-add_winning_el(_indices[0])
-add_winning_el(_indices[-1])
-add_winning_el(_indices.transpose()[0])
-add_winning_el(_indices.transpose()[-1])
+add_winning_el(_indices[0][1:-1])
+add_winning_el(_indices[-1][1:-1])
+add_winning_el(_indices.transpose()[0][1:-1])
+add_winning_el(_indices.transpose()[-1][1:-1])
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
  
 #Black pieces can not never take throne position. The black prohibited elements are dynamic with an evaluation that depends on FROM moving index.(checked in Board.py)
@@ -98,8 +128,6 @@ king_capture_segments[throne_el] = cross_center_segments[throne_el]
 for adjacent in king_capture_segments[throne_el][0][1:]:
     king_capture_segments[adjacent] = king_capture_segments[throne_el]
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
-
-
 
 #np.asarray Trasformation
 camps                   = np.asarray(camps)

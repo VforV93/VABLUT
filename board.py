@@ -11,7 +11,7 @@ class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, cols=9, rows=9):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
         self._pos = pos
@@ -40,30 +40,28 @@ class Board(object):
     def _check_end(self, pos, last_move=None):
         if KING_VALUE in self.win_segments(pos):
             return PLAYER2
+        
+        if len(self.get_all_moves()) == 0:
+            return self.other
+        
+        if last_move is not None:
+            pos = pos.flatten()
+            if pos[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
+                return PLAYER1
+            
+            pos = self.pos_update(pos, last_move)
 # =============================================================================
-#         
-#         if last_move is not None:
-#             if pos.flatten()[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
-#                 return PLAYER1
-#             
-#             pos = pos.flatten()
-#             pos[winning_el] = PLAYER1
+#             pos[winning_el] = PLAYER1   MODIFICO LA SCHACCHIERA PER LA VERIFICA DELLA VITTORIA
 #             if not pos[throne_el] == KING_VALUE:
 #                 pos[throne_el] = PLAYER1
-#                 
-#             for seg in self.capture_segments(pos, last_move):
-#                 c = np.bincount(seg)
-#                 if not seg[1] == KING_VALUE:
-#                     continue
-#                 elif c[PLAYER1] == len(seg)-1:
-#                     return PLAYER1
 # =============================================================================
-# =============================================================================
-#         TO DO:check mosse finite ===> pareggio
-#         if pos.all():
-#             return DRAW
-#         else:
-# =============================================================================
+                
+            for seg in self.capture_segments(pos, last_move):
+                c = np.bincount(seg)
+                if not seg[1] == KING_VALUE:
+                    continue
+                elif c[PLAYER1] == len(seg)-1:
+                    return PLAYER1
         return None
     
     @classmethod
@@ -187,8 +185,6 @@ class Board(object):
         future_pos = self.from_pos_to_dic(check_pos, col, row)
         #print(future_pos)
         return Board(future_pos, self.other, self._check_end(check_pos, TO))
-        
-        
     
     #Return the vector between FROM and TO
     @classmethod
@@ -288,5 +284,6 @@ class Board(object):
         TO = alp[int(TO%col)+1]+str(int(TO/col)+1)
         return (FROM, TO)
     #===---===---===---===---===---===---===---===---===---===---===---===
-        
-            
+    
+    def hashkey(self):
+        return hash(str(self.pos))
