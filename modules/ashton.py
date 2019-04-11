@@ -126,7 +126,7 @@ for tc in capture_segments:
 # different camptures rule in throne and adjacent elements
 king_capture_segments[throne_el] = cross_center_segments[throne_el]
 for adjacent in king_capture_segments[throne_el][0][1:]:
-    king_capture_segments[adjacent] = king_capture_segments[throne_el]
+    king_capture_segments[adjacent] = cross_center_segments[adjacent]
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
 
 #np.asarray Trasformation

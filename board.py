@@ -1,7 +1,7 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
 from modules.tables import _indices, move_segments, rev_segments, possible_move_segments
-from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments
+from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments
 from random import shuffle
 
 COL = int(len(_indices[0]))
@@ -11,13 +11,13 @@ class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
         self._pos = pos
         self._stm = stm
         if end == COMPUTE:
-            self._end = self._check_end(self.pos)
+            self._end = self._check_end(self.pos, last_move)
         else:
             self._end = end
 
@@ -49,9 +49,8 @@ class Board(object):
             if pos[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
                 return PLAYER1
             #pos drug
-            pos = self.pos_update(pos, last_move)
-
             i_king = _indices.flatten()[pos == KING_VALUE][0]
+            pos = self.pos_update(pos, last_move)
 
             for seg in king_capture_segments[i_king]:
                 if last_move in seg:
@@ -134,16 +133,19 @@ class Board(object):
         #Captures Check
         for s in rev_segments[TO]:
             seg = check_drug_pos[s].copy()
+            seg_pos = check_pos[s]
+            if seg[1] != self.other:#Non posso mangiare il re, è utlizzato dal _check_end per controllare se l'intorno lo ha catturato o meno
+                continue
             seg[seg==KING_VALUE] = PLAYER2
             c = np.bincount(seg)
             if c[0] or len(c)!=3:
                 continue
             if c[self.stm]==2:
-                seg[1]=0
-                check_pos[s] = seg
+                seg_pos[1]=0
+                check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-        return Board(future_pos, self.other, self._check_end(check_pos, TO))
+        return Board(future_pos, self.other, COMPUTE, TO)
     
     #Return the vector between FROM and TO
     @classmethod
@@ -202,8 +204,11 @@ class Board(object):
         if piece == 0:
             return pos
         mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
+
+        #mask[throne_el] = True
         seg = prohibited_segments[piece][FROM]
         pos[seg[mask]] = piece
+        pos[throne_el] = piece
         return pos
     
     def get_all_moves(self):
@@ -250,7 +255,7 @@ class Board(object):
             raise ValueError('Move conversion Error: m is not a tuple')
 
         FROM, TO = m[0], m[1]
-        alp = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7}
+        alp = {'A': 1, 'B': 2, 'C': 3, 'D': 4, 'E': 5, 'F': 6, 'G': 7, 'H': 8, 'I': 9}
         
         if ((FROM[0] not in alp) or (TO[0] not in alp) or (int(FROM[1]) not in range(1,row+1)) or (int(TO[1]) not in range(1,row+1))):
             raise ValueError(m)
