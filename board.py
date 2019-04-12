@@ -183,9 +183,9 @@ class Board(object):
        
     #Return the trios-pos vector where TO is the first or last element
     @classmethod     
-    def capture_segments(cls, pos, TO):
+    def capture_segments(cls, pos):
         if isinstance(pos, Board):
-            return cls.capture_segments(pos.pos, TO)
+            return cls.capture_segments(pos.pos)
         else:
             ret = []
             for c in rev_segments[TO]:
