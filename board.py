@@ -7,6 +7,8 @@ from random import shuffle
 COL = int(len(_indices[0]))
 ROW = int(len(_indices.transpose()[0]))
 
+draw_dic = {}
+
 class WrongMoveError(Exception):
     pass
 
@@ -14,6 +16,9 @@ class Board(object):
     def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
+            global draw_dic
+            draw_dic = {}
+ 
         self._pos = pos
         self._stm = stm
         if end == COMPUTE:
@@ -38,6 +43,11 @@ class Board(object):
         return (PLAYER1*self._pos[PLAYER1]+PLAYER2*self._pos[PLAYER2][0]+KING_VALUE*self._pos[PLAYER2][1])
     
     def _check_end(self, pos, last_move=None):
+        if self.hashkey() in draw_dic:
+            return DRAW
+        else:
+            draw_dic[self.hashkey()] = True
+        
         if KING_VALUE in self.win_segments(pos):
             return PLAYER2
         
