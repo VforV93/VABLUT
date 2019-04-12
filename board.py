@@ -1,7 +1,7 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
 from modules.tables import _indices, move_segments, rev_segments, possible_move_segments
-from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments
+from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
 from random import shuffle
 
 COL = int(len(_indices[0]))
@@ -93,7 +93,7 @@ class Board(object):
         
         return s
     
-    #m must be a tuple (FROM, TO). es (D1, F1)
+    #m must be a tuple (FROM, TO). es ('D1', 'F1')
     def move(self, m):
         if not isinstance(m, tuple):
             raise ValueError(m)
@@ -128,7 +128,7 @@ class Board(object):
         check_pos_ret[FROM] = 0
         check_pos = check_pos_ret.copy()
         
-        check_drug_pos = self.pos_update(check_pos, TO)
+        check_drug_pos = self.pos_update_capturing(check_pos, TO)
         
         #Captures Check
         for s in rev_segments[TO]:
@@ -196,6 +196,19 @@ class Board(object):
         ret[PLAYER2] = (w.reshape((col,row)),k.reshape((col,row)))
         return ret
     
+    @classmethod
+    def pos_update_capturing(cls, pos, TO):
+        pos = pos.flatten()        
+        piece = pos[TO] #1:black 2:white 3:king
+        if piece == 0:
+            return pos
+        mask = pos[capturing_dic[piece]] == 0 #elements to modified just if in pos the el is empty
+
+        seg = capturing_dic[piece]
+        pos[seg[mask]] = piece
+        pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
+        return pos
+    
     #the actual and real pos(board configuration) is updated setting the prohibited elements for piece = piece if the element is empty
     @classmethod
     def pos_update(cls, pos, FROM):
@@ -205,10 +218,8 @@ class Board(object):
             return pos
         mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
 
-        #mask[throne_el] = True
         seg = prohibited_segments[piece][FROM]
         pos[seg[mask]] = piece
-        pos[throne_el] = piece
         return pos
     
     def get_all_moves(self):
