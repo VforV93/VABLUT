@@ -1,6 +1,6 @@
 #rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
 import numpy as np
-from modules.tables import _indices, move_segments, rev_segments, possible_move_segments
+from modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments
 from modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
 from random import shuffle
 
@@ -183,14 +183,19 @@ class Board(object):
        
     #Return the trios-pos vector where TO is the first or last element
     @classmethod     
-    def capture_segments(cls, pos):
-        if isinstance(pos, Board):
-            return cls.capture_segments(pos.pos)
+    def capture_segments(cls, pos, player):
+        #print(type(pos))
+        if isinstance(pos, cls):
+            return cls.capture_segments(pos.pos, player)
         else:
-            ret = []
-            for c in rev_segments[TO]:
-                ret.append(pos[c])
-            return np.asarray(ret)
+            pos = pos.flatten()
+            mask = pos == player
+            TOs = _indices.flatten()[mask]
+            if TOs.size:
+                pos = Board.pos_update_capturing(pos, TOs[0])
+            
+            print(pos.reshape((9,9)))
+            return pos[capture_segments]
     
     #Transform a compact board's raffiguration(2-Dmatric with 0,1,2,3 elements) to the corresponding dictionary raffiguration 
     @classmethod
@@ -287,3 +292,88 @@ class Board(object):
     
     def hashkey(self):
         return hash(str(self.pos))
+    
+    # === === === Method for Evaluator purpose === === ===
+    #Return black pieces - white pieces(king excluded)
+    @classmethod
+    def pieces_difference(cls, pos):
+        c = np.bincount(pos.flatten(), minlength=3)
+        return c[PLAYER1]-c[PLAYER2]
+    
+    #Number of winning elements that are blocked from w/b and number of w/b pieces that can get with 1 movement
+    @classmethod
+    def escape_el_stats(cls, pos): #[OCCUPIED from w, OCCUPIED from b, 1 move w to occupied, 1 move b to occupied]
+        stats = {PLAYER1: np.zeros(2, dtype=int), PLAYER2: np.zeros(2, dtype=int), KING_VALUE: np.zeros(2, dtype=int)}
+        block_stats = {PLAYER1: np.zeros(3, dtype=int), PLAYER2: np.zeros(3, dtype=int), KING_VALUE: np.zeros(3, dtype=int)} # b:[blocking black, blocking white, blocking king] w:same k:same
+        pos = pos.flatten()
+        for w in winning_el:
+            if pos[w]: # if w pos is full it will be impossible get it on
+                #print('w-pos: %s occupata da Pezzo%s'%(str(w),pos[w]))
+                stats[pos[w]][0] += 1
+                continue
+            for pms in possible_move_segments[w]:
+                segment = pos[pms]
+                if not segment.sum():#void board segment filtered
+                    #print('%s - %s FILTRATO'%(segment,pms))
+                    continue
+                c = np.bincount(segment, minlength=4)
+                if c[1:].sum()==1 and segment[-1]!=0:#1 move check
+                    if cls.pos_update(pos,pms[-1])[pms[1:-1]].sum() == 0:
+                        stats[segment[-1]][1] += 1
+                        #print('%s - %s <-- Pezzo%s 1 move to winning %s-pos'%(segment,pms,segment[-1],pms[0]))
+                    #else:
+                    #    print('%s - %s <-- Pezzo%s 1 move OSTACOLATO to %s-pos[%s]'%(segment,pms,segment[-1],pms[0],self.pos_update(pos,pms[-1])[pms[1:-1]]))
+                elif segment[-1]!=0: # Direct Blocking check [win_el, 0, ..., ->#<-, 0, ..., #]
+                    cutted_seg = segment[1:-1]
+                    if (cutted_seg == cls.pos_update(pos,pms[-1])[pms[1:-1]]).all():
+                        #print('prima:%s dopo:%s uguale a:%s'%(segment,cutted_seg,self.pos_update(pos,pms[-1])[pms[1:-1]]))
+                        cutted_seg = cutted_seg[cutted_seg>0]
+                        if len(cutted_seg) == 1:
+                            block_stats[cutted_seg[0]][segment[-1]-1] += 1
+                    #else:
+                    #    print('prima:%s dopo:%s uguale a:%s FILTRATO'%(segment,cutted_seg,self.pos_update(pos,pms[-1])[pms[1:-1]]))
+        #print('[Occupied w els, 1 move to w els]- B%s  W%s  K%s'%(stats[PLAYER1],stats[PLAYER2],stats[KING_VALUE]))
+        #print('[blocking B pieces, blocking W pieces, blocking the K]- B%s  W%s  K%s'%(block_stats[PLAYER1],block_stats[PLAYER2],block_stats[KING_VALUE]))  
+        return stats, block_stats
+    # get stats about the king position
+    # [escape distance, capturable, # move for capturing, free els around k, b pieces around k, w pieces around k, b 1 move to king, w 1 move to king]
+    @classmethod
+    def king_stats(cls, pos):
+        pos = pos.flatten()
+        stats = np.zeros(8, dtype=int)
+        king_i = int(_indices.flatten()[pos == 3])
+        # 1-capturable) The king is capturable if the black player can move his pieces next to the king
+        for k_capture_s in king_capture_segments[king_i]:
+            k_capture_s = k_capture_s[k_capture_s!=king_i]
+            ret = np.zeros(len(k_capture_s), dtype=bool)
+            num_moves = 0
+            for i,nex_to_k in enumerate(k_capture_s):
+                print('checking:%s'%nex_to_k)
+                if pos[nex_to_k] == PLAYER1:
+                    ret[i] = True
+                elif cls.pos_reachable_by_player(pos, nex_to_k, PLAYER1):
+                    ret[i] = True
+                    num_moves += 1
+                    print(ret)
+            print('moves:%s'%num_moves)
+            if (ret == True).all():
+                stats[1] = True
+            if (stats[2]== 0 or stats[2]>num_moves) and num_moves>0:
+                stats[2]=num_moves
+        print(stats)
+    # True if the board index is empty and reachable in 1 move by the player[PLAYER1, PLAYER2 or KING_VALUE]
+    @classmethod
+    def pos_reachable_by_player(cls, pos, index, player):
+        pos = pos.flatten()
+        if pos[index]:#index already occupied, return False
+            return False      
+        for move in possible_move_segments[index]:
+            segment = pos[move]
+            if segment[-1] and np.bincount(segment[segment!=0]).sum() == 1:
+                drug_pos     = cls.pos_update(pos, move[-1])
+                drug_segment = drug_pos[move]
+                if (segment == drug_segment).all() and segment[-1]==player:
+                    return True
+        return False
+                    
+        

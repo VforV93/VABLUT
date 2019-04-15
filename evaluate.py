@@ -21,6 +21,9 @@ class Evaluator(object):
             else:
                 return -INF
         
-
-a = np.asarray([0,0,2,2,0],dtype=int)
-a[a.any()]
+        segments = Board.capture_segments(board, board.stm)
+        filtered_segments = segments[segments.any(1)]
+        
+        for s in filtered_segments:
+            c = np.bincount(s, minlength=3)
+            print(c)
