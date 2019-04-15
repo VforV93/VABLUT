@@ -217,10 +217,7 @@ class Board(object):
         piece = pos[TO] #1:black 2:white 3:king
         if piece == 0:
             return pos
-        mask = pos[capturing_dic[piece]] == 0 #elements to modified just if in pos the el is empty
-
-        seg = capturing_dic[piece]
-        pos[seg[mask]] = piece
+        pos[capturing_dic[piece]] = piece
         pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
         return pos
     
