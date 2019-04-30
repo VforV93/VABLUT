@@ -12,7 +12,7 @@ import numpy as np
 # cross_center_segments     is an index square -> group of 1 segments to check the cross capture of the king. 1st element is the middle elemente of the cross.
 #
 
-col = row = 9
+col = row = 7
 
 capture_segments        = []
 all_cross               = []
@@ -21,7 +21,7 @@ rev_segments            = [[] for x in range(col*row)]
 move_segments           = [[] for x in range(col*row)]
 possible_move_segments  = [[] for x in range(col*row)]
 
-_indices = np.arange(col*row).reshape((col, row))
+_indices = np.arange(col*row).reshape((row, col))
 
 def add_rev(line):
     for x in range(len(line)-2):
@@ -83,6 +83,7 @@ capture_segments        = np.asarray(capture_segments)
 all_cross               = np.asarray(all_cross)
 
 cross_center_segments   = np.asarray(cross_center_segments)
+#cross_center_segments[2][0][3]=12
 rev_segments            = np.asarray([np.asarray(x) for x in rev_segments])
 move_segments           = np.asarray([np.asarray(x) for x in move_segments])
 possible_move_segments  = np.asarray([np.asarray(x) for x in possible_move_segments])
