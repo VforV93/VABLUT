@@ -1,8 +1,9 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 # camp_segments is an index square -> group of board's elements that represents a camp
 # king_capture_segments  is an index square -> group of 1 segments(3 or 5 elements) to check the king camptures
 import numpy as np
 from vablut.modules.tables import col, row, capture_segments, cross_center_segments, _indices
+
 
 PLAYER1 = 1
 PLAYER2 = 2
@@ -22,66 +23,36 @@ prohibited_king_el  = []    #throne if king leaves the position
 capturing_dic       = {PLAYER1: [], PLAYER2: [], KING_VALUE: []} # dictionary used to "drug" the board position for the capture's purpose
 
 #DEFAULT: Starting position of the game
-# =============================================================================
-# blacks = np.array([[0,0,0,1,1,1,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [1,0,0,0,0,0,0,0,1],
-#                    [1,1,0,0,0,0,0,1,1],
-#                    [1,0,0,0,0,0,0,0,1],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,1,1,1,0,0,0]])
-# 
-# whites = np.array([[0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,1,1,0,1,1,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0]])
-# 
-# king  =  np.array([[0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,1,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0],
-#                    [0,0,0,0,0,0,0,0,0]])
-# =============================================================================
-blacks = np.array([[0,0,0,0,0,0,1,0,0],
+blacks = np.array([[0,0,0,1,1,1,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,1,1,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,1],
+                   [1,1,0,0,0,0,0,1,1],
+                   [1,0,0,0,0,0,0,0,1],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,1,0,0],
-                   [0,0,0,0,0,0,1,0,0],
-                   [0,0,0,1,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
+                   [0,0,0,0,1,0,0,0,0],
+                   [0,0,0,1,1,1,0,0,0]])
 
 whites = np.array([[0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,1,0],
-                   [0,0,0,0,0,0,0,1,0],
-                   [0,0,0,0,0,1,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
+                   [0,0,1,1,0,1,1,0,0],
+                   [0,0,0,0,1,0,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,1,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0]])
 
 king  =  np.array([[0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,1,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0],
                    [0,0,0,0,0,0,0,0,0]])
+
 throne_el = 40#king.flatten().dot(_indices.flatten())
 
 
@@ -90,7 +61,7 @@ def add_camp(line1, line2):
     seg = np.append(seg, line2[int(len(line2)/2)])
     camps.append(seg)
     for c in seg:
-        camp_segments[c].append(seg)
+        camp_segments[c] = seg
 
 add_camp(_indices[0], _indices[1])
 add_camp(_indices.transpose()[-1], _indices.transpose()[-2])
@@ -139,20 +110,23 @@ for tc in capture_segments:
     king_capture_segments[tc[1]].append(tc)
 # different camptures rule in throne and adjacent elements
 king_capture_segments[throne_el] = cross_center_segments[throne_el]
-for adjacent in king_capture_segments[throne_el][0][1:]:
+for adjacent in king_capture_segments[throne_el][1:]:
     king_capture_segments[adjacent] = cross_center_segments[adjacent]
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
 
 #np.asarray Trasformation
 camps                   = np.asarray(camps)
+#winning_el.remove(1)
+#winning_el.append(40)
 winning_el              = np.asarray(winning_el)
+
 prohibited_black_el     = np.asarray(prohibited_black_el)
 prohibited_white_el     = np.asarray(prohibited_white_el)
 prohibited_king_el      = np.asarray(prohibited_king_el)
 
+
 camp_segments           = np.asarray([np.asarray(x) for x in camp_segments])
 king_capture_segments   = np.asarray([np.asarray(x) for x in king_capture_segments])
-
 # prohibited_segments is a dictionary containing an index square for every kind of pieces(white, king and black) -> group of prohibited indices used to modify the pos game board to generate all moves or check camptures
 prohibited_segments = {PLAYER1: [[] for x in range(col*row)], PLAYER2: [[] for x in range(col*row)], KING_VALUE: [[] for x in range(col*row)]}
 

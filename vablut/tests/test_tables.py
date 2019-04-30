@@ -1,4 +1,4 @@
-# coding=utf-8
+# -*- coding: utf-8 -*-
 from vablut.modules.tables import *
 from vablut.modules.tables import _indices
 from random import randint
@@ -15,7 +15,7 @@ def test_tables_indices():
     assert col*row-1 in _indices.flatten(),"%s(last element) not in _indices"%(col*row-1)
     assert col*row == len(_indices.flatten()),"_indices must contains col(%s)*row(%s) elements"%(col,row)
     
-@pytest.mark.repeat(100)
+@pytest.mark.repeat(1)
 def test_tables_capturesegments():
     assert capture_segments.size != 0,"capture_segments.size is equal to 0, so why are you using this module/package with a table board without captures?"
     r = randint(0,row-1)
@@ -52,7 +52,7 @@ def test_tables_possiblemovesegments_init():
             assert len(m)>1,"1 move element not allowed. The move %s inside the possible_move_segments[%s](%s) has just 1 element."%(m,i,v)
  
 
-@pytest.mark.repeat(100)
+@pytest.mark.repeat(1)
 def test_tables_possiblemovesegments():
     #Horizontal random check
     r = randint(0,row-1)
@@ -82,11 +82,11 @@ def test_tables_possiblemovesegments():
     
 def test_tables_crosscentersegments():
     count = np.zeros(6,dtype=int)
+    assert len(cross_center_segments) == col*row,"cross_center_segments must be an index square with %s elements index"%(col*row)
     for cross in cross_center_segments:
-        assert cross.size==1,"Every index elements of cross_center_segment must contain 1 possible cross"
-        assert cross[0].size>1,"Every cross must contain at least 2 elements"
-        assert cross[0].size<=5,"Every cross must contain less or equal 5 elements"
-        count[cross[0].size] += 1
+        assert cross.size>1,"Every cross must contain at least 2 elements"
+        assert cross.size<=5,"Every cross must contain less or equal 5 elements"
+        count[cross.size] += 1
         
     corners = 4
     per     = ((col-2)*2) + ((row-2)*2)
@@ -118,47 +118,47 @@ def test_tables_crosscentersegments():
     oths -= right_corners
 
     for lc in left_corners:
-        assert lc == cross_center_segments[lc][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(lc,lc)
-        assert len(cross_center_segments[lc][0]) == 3
-        assert (lc+1    in cross_center_segments[lc][0])
+        assert lc == cross_center_segments[lc][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(lc,lc)
+        assert len(cross_center_segments[lc]) == 3
+        assert (lc+1    in cross_center_segments[lc])
     
     for rc in right_corners:
-        assert rc == cross_center_segments[rc][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(rc,rc)
-        assert len(cross_center_segments[rc][0]) == 3
-        assert (rc-1    in cross_center_segments[rc][0])
+        assert rc == cross_center_segments[rc][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(rc,rc)
+        assert len(cross_center_segments[rc]) == 3
+        assert (rc-1    in cross_center_segments[rc])
         
     for up in uppper_per:
-        assert up == cross_center_segments[up][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
-        assert len(cross_center_segments[up][0]) == 4
-        assert (up-1    in cross_center_segments[up][0])
-        assert (up+1    in cross_center_segments[up][0])
-        assert (up+col  in cross_center_segments[up][0])
+        assert up == cross_center_segments[up][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
+        assert len(cross_center_segments[up]) == 4
+        assert (up-1    in cross_center_segments[up])
+        assert (up+1    in cross_center_segments[up])
+        assert (up+col  in cross_center_segments[up])
         
     for bp in bottom_per:
-        assert bp == cross_center_segments[bp][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
-        assert len(cross_center_segments[bp][0]) == 4
-        assert (bp-1    in cross_center_segments[bp][0])
-        assert (bp+1    in cross_center_segments[bp][0])
-        assert (bp-col  in cross_center_segments[bp][0])
+        assert bp == cross_center_segments[bp][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
+        assert len(cross_center_segments[bp]) == 4
+        assert (bp-1    in cross_center_segments[bp])
+        assert (bp+1    in cross_center_segments[bp])
+        assert (bp-col  in cross_center_segments[bp])
         
     for lp in left_per:
-        assert lp == cross_center_segments[lp][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
-        assert len(cross_center_segments[lp][0]) == 4
-        assert (lp-col  in cross_center_segments[lp][0])
-        assert (lp+1    in cross_center_segments[lp][0])
-        assert (lp+col  in cross_center_segments[lp][0])
+        assert lp == cross_center_segments[lp][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
+        assert len(cross_center_segments[lp]) == 4
+        assert (lp-col  in cross_center_segments[lp])
+        assert (lp+1    in cross_center_segments[lp])
+        assert (lp+col  in cross_center_segments[lp])
         
     for rp in right_per:
-        assert rp == cross_center_segments[rp][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
-        assert len(cross_center_segments[rp][0]) == 4
-        assert (rp-col  in cross_center_segments[rp][0])
-        assert (rp-1    in cross_center_segments[rp][0])
-        assert (rp+col  in cross_center_segments[rp][0])
+        assert rp == cross_center_segments[rp][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(up,up)
+        assert len(cross_center_segments[rp]) == 4
+        assert (rp-col  in cross_center_segments[rp])
+        assert (rp-1    in cross_center_segments[rp])
+        assert (rp+col  in cross_center_segments[rp])
         
     for ot in oths:
-        assert ot == cross_center_segments[ot][0][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(ot,ot)
-        assert len(cross_center_segments[ot][0]) == 5
-        assert (ot+1    in cross_center_segments[ot][0])
-        assert (ot-1    in cross_center_segments[ot][0])
-        assert (ot+col  in cross_center_segments[ot][0])
-        assert (ot-col  in cross_center_segments[ot][0])
+        assert ot == cross_center_segments[ot][0],"index %s must be also in the array contained in cross_center_segments[%s]"%(ot,ot)
+        assert len(cross_center_segments[ot]) == 5
+        assert (ot+1    in cross_center_segments[ot])
+        assert (ot-1    in cross_center_segments[ot])
+        assert (ot+col  in cross_center_segments[ot])
+        assert (ot-col  in cross_center_segments[ot])
