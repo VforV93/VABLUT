@@ -96,7 +96,7 @@ class Board(object):
         s = '\n'.join(s)
         
         if self.end is DRAW:
-            s += '\n<<< Game over: draw' % [self.end]
+            s += '\n<<< Game over: draw'
         elif self.end is not None:
             s += '\n<<< Game over: %s win' % disc[self.end]
         else:
