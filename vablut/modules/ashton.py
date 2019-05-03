@@ -125,8 +125,8 @@ prohibited_white_el     = np.asarray(prohibited_white_el)
 prohibited_king_el      = np.asarray(prohibited_king_el)
 
 
-camp_segments           = np.asarray([np.asarray(x) for x in camp_segments])
-king_capture_segments   = np.asarray([np.asarray(x) for x in king_capture_segments])
+camp_segments           = np.asarray([np.asarray(x, dtype=int) for x in camp_segments])
+king_capture_segments   = np.asarray([np.asarray(x, dtype=int) for x in king_capture_segments])
 # prohibited_segments is a dictionary containing an index square for every kind of pieces(white, king and black) -> group of prohibited indices used to modify the pos game board to generate all moves or check camptures
 prohibited_segments = {PLAYER1: [[] for x in range(col*row)], PLAYER2: [[] for x in range(col*row)], KING_VALUE: [[] for x in range(col*row)]}
 
@@ -162,4 +162,5 @@ for i,x in enumerate(camps):#...prohibited camp elements update
         prohibited_segments[PLAYER1][el] = np.concatenate((prohibited_black_el, camps[:i].flatten(), camps[i+1:].flatten()))
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
 
+#prohibited_segments[1][3][1] = 3
 del c, el, adjacent, i, pwe, tc, x, cap_el

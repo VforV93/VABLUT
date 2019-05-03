@@ -73,7 +73,7 @@ class Board(object):
     @classmethod
     def win_segments(cls, pos):
         if isinstance(pos, Board):
-            return cls.segments(pos.pos)
+            return cls.win_segments(pos.pos)
         else:
             pos = pos.flatten()
             return pos[winning_el]
@@ -219,7 +219,7 @@ class Board(object):
         if piece == 0:
             return pos
         pos[capturing_dic[piece]] = piece
-        pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
+        #pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
         return pos
     
     #the actual and real pos(board configuration) is updated setting the prohibited elements for piece = piece if the element is empty
@@ -229,10 +229,9 @@ class Board(object):
         piece = pos[FROM] #1:black 2:white 3:king
         if piece == 0:
             return pos
-        mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
-
-        seg = prohibited_segments[piece][FROM]
-        pos[seg[mask]] = piece
+        #NO -> TO DRUG ALWAYS mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
+        #seg = prohibited_segments[piece][FROM]
+        pos[prohibited_segments[piece][FROM]] = piece
         return pos
     
     def get_all_moves(self):

@@ -75,3 +75,34 @@ def test_winningel():
         assert p[1] in winning_el,"%s should be in winning_el:%s"%(p[1],winning_el)
         assert p[-1] in winning_el,"%s should be in winning_el:%s"%(p[-1],winning_el)
         assert p[-2] in winning_el,"%s should be in winning_el:%s"%(p[-2],winning_el)
+
+def test_prohibitedsegments():
+    #testing black prohibited elements
+    for c in camps.flatten():
+        assert c in prohibited_segments[PLAYER1][0],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,0)
+        assert c in prohibited_segments[PLAYER1][2],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,2)
+        assert c in prohibited_segments[PLAYER1][7],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,7)
+        assert c in prohibited_segments[PLAYER1][11],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,11)
+        assert c in prohibited_segments[PLAYER1][12],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,12)
+        assert c in prohibited_segments[PLAYER1][16],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,16)
+        assert c in prohibited_segments[PLAYER1][31],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,31)
+        assert c in prohibited_segments[PLAYER1][39],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,39)
+        assert c in prohibited_segments[PLAYER1][41],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,41)
+        assert c in prohibited_segments[PLAYER1][49],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,49)
+        assert c in prohibited_segments[PLAYER1][58],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,58)
+        assert c in prohibited_segments[PLAYER1][68],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,68)
+        assert c in prohibited_segments[PLAYER1][69],"the camp element %s should be prohibited for the Black Player moving FROM:%s"%(c,69)
+
+    for i in _indices.flatten():
+        for cs in camp_segments[i]:
+            assert cs not in prohibited_segments[PLAYER1][i],"the camp element %s should not be prohibited for the Black Player moving FROM:%s"%(cs,i)
+
+    #testing black prohibited elements
+
+def test_capturingdic():
+    for i,cd in capturing_dic.items():
+        assert throne_el in cd,"throne element:%s should count always in capturing. It must be in %s"%(throne_el,cd)
+        for c in camps:
+            assert c[0] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[0],cd)
+            assert c[2] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[2],cd)
+            assert c[3] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[3],cd)
