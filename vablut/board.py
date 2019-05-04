@@ -177,22 +177,6 @@ class Board(object):
         ret = pos.flatten()
         
         return ret[line]
-       
-    #Return the trios-pos vector where TO is the first or last element
-    @classmethod     
-    def capture_segments(cls, pos, player):
-        #print(type(pos))
-        if isinstance(pos, cls):
-            return cls.capture_segments(pos.pos, player)
-        else:
-            pos = pos.flatten()
-            mask = pos == player
-            TOs = _indices.flatten()[mask]
-            if TOs.size:
-                pos = Board.pos_update_capturing(pos, TOs[0])
-            
-            print(pos.reshape((9,9)))
-            return pos[capture_segments]
     
     #Transform a compact board's raffiguration(2-Dmatric with 0,1,2,3 elements) to the corresponding dictionary raffiguration 
     @classmethod
