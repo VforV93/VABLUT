@@ -1,5 +1,4 @@
-# coding=utf-8
-#rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
+# -*- coding: utf-8 -*-
 import numpy as np
 from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments
 from vablut.modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
@@ -8,22 +7,18 @@ from random import shuffle
 COL = int(len(_indices[0]))
 ROW = int(len(_indices.transpose()[0]))
 
-draw_dic = {}
-
 class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None, draw_dic={}):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
-            global draw_dic
-            draw_dic = {}
  
         self._pos = pos
         self._stm = stm
         if end == COMPUTE:
-            self._end = self._check_end(self.pos, last_move)
+            self._end = self._check_end(self.pos, last_move, draw_dic)
         else:
             self._end = end
 
@@ -43,11 +38,12 @@ class Board(object):
     def pos(self):
         return (PLAYER1*self._pos[PLAYER1]+PLAYER2*self._pos[PLAYER2][0]+KING_VALUE*self._pos[PLAYER2][1])
     
-    def _check_end(self, pos, last_move=None):
-        if self.hashkey() in draw_dic:
-            return DRAW
-        else:
-            draw_dic[self.hashkey()] = True
+    def _check_end(self, pos, last_move=None, draw_dic=None):
+        if draw_dic:
+            if self.hashkey() in draw_dic:
+                return DRAW
+            else:
+                draw_dic[self.hashkey()] = True
         
         if KING_VALUE in self.win_segments(pos):
             return PLAYER2
@@ -373,4 +369,3 @@ class Board(object):
                     return True
         return False
                     
-        

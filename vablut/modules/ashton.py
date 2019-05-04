@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # camp_segments is an index square -> group of board's elements that represents a camp
-# king_capture_segments  is an index square -> group of 1 segments(3 or 5 elements) to check the king camptures
+# king_capture_segments  is an index square -> group of 1 or more segments(3 or 5 elements) to check the king camptures
 import numpy as np
 from vablut.modules.tables import col, row, capture_segments, cross_center_segments, _indices
 
@@ -109,9 +109,9 @@ capturing_dic[KING_VALUE] = np.asarray(cap_el[:])
 for tc in capture_segments:
     king_capture_segments[tc[1]].append(tc)
 # different camptures rule in throne and adjacent elements
-king_capture_segments[throne_el] = cross_center_segments[throne_el]
-for adjacent in king_capture_segments[throne_el][1:]:
-    king_capture_segments[adjacent] = cross_center_segments[adjacent]
+king_capture_segments[throne_el] = [cross_center_segments[throne_el]]
+for adjacent in king_capture_segments[throne_el][0][1:]:
+    king_capture_segments[adjacent] = [cross_center_segments[adjacent]]
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
 
 #np.asarray Trasformation
@@ -163,4 +163,4 @@ for i,x in enumerate(camps):#...prohibited camp elements update
 # === === === === === === === === === === === === === === === === === === === === === === === === === === 
 
 #prohibited_segments[1][3][1] = 3
-del c, el, adjacent, i, pwe, tc, x, cap_el
+del c, el, i, pwe, tc, x, cap_el

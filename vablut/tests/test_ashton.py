@@ -38,8 +38,9 @@ def test_kingcapturesegments():
         assert len(king_capture_segments[c]) == 0,"king_capture_segments[%s] must be empty because the King can not get to the corners"%c
     
     for i_kc in cross_center_segments[throne_el]:
-        assert len(set(king_capture_segments[i_kc])) == 5,"in the throne_el or neighborhood king_capture_segments[%s] must contains 5 elements"%i_kc
-        assert set(cross_center_segments[i_kc]) == set(king_capture_segments[i_kc]),"king_capture_segments[%s] should be %s instead of %s"%(i_kc,cross_center_segments[i_kc],king_capture_segments[i_kc])
+        assert len(king_capture_segments[i_kc])         == 1,"the capture segments with king starteing index must be just one and not %s"%len(king_capture_segments[i_kc])
+        assert len(set(king_capture_segments[i_kc][0])) == 5,"in the throne_el or neighborhood king_capture_segments[%s] must contains 5 elements"%i_kc
+        assert set(cross_center_segments[i_kc])         == set(king_capture_segments[i_kc][0]),"king_capture_segments[%s] should be %s instead of %s"%(i_kc,cross_center_segments[i_kc],king_capture_segments[i_kc])
 
     horizontal_per = []
     horizontal_per.append(_indices[0][1:-1])
@@ -106,3 +107,6 @@ def test_capturingdic():
             assert c[0] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[0],cd)
             assert c[2] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[2],cd)
             assert c[3] in cd,"camp element:%s should count always in capturing. It must be in %s"%(c[3],cd)
+
+
+test_kingcapturesegments()
