@@ -11,7 +11,7 @@ class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None, draw_dic={}):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None, draw_dic=None):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
  
@@ -39,7 +39,7 @@ class Board(object):
         return (PLAYER1*self._pos[PLAYER1]+PLAYER2*self._pos[PLAYER2][0]+KING_VALUE*self._pos[PLAYER2][1])
     
     def _check_end(self, pos, last_move=None, draw_dic=None):
-        if draw_dic:
+        if draw_dic is not None:
             if self.hashkey() in draw_dic:
                 return DRAW
             else:
@@ -58,7 +58,7 @@ class Board(object):
             #pos drug
             i_king = _indices.flatten()[pos == KING_VALUE][0]
             pos = self.pos_update(pos, last_move)
-
+            pos[i_king] = KING_VALUE
             for seg in king_capture_segments[i_king]:
                 if last_move in seg:
                     c = np.bincount(pos[seg])
