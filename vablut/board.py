@@ -239,7 +239,6 @@ class Board(object):
     def coordinates_int_to_string(cls, m, col=COL, row=ROW):
         if not isinstance(m, tuple):
             raise ValueError('Move conversion Error: m is not a tuple')
-
         
         FROM, TO = int(m[0]), int(m[1])
         alp = { 1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'I' }

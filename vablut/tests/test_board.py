@@ -640,7 +640,22 @@ def test_posupdatecapturing():
     assert (board9.pos_update_capturing(board9.pos, 14).flatten() == pos9_up_w.flatten()).all(),"the updated pos should be \n%s instead of \n%s"%(pos9_up_w,board9.pos_update_capturing(board9.pos, 14).reshape((ROW,COL)))
     assert (board9.pos_update_capturing(board9.pos, 6).flatten() == pos9_up_k.flatten()).all(),"the updated pos should be \n%s instead of \n%s"%(pos9_up_k,board9.pos_update_capturing(board9.pos, 6).reshape((ROW,COL)))
 
+def test_coordinatesinttostring():
+    assert Board.coordinates_int_to_string((19,25)) == ('B3','H3'),"the coordinate: %s should correspond to %s instead of %s"%('(19,25)',"('B3','H3')",Board.coordinates_int_to_string((19,25)))
+    assert Board.coordinates_int_to_string((31,58)) == ('E4','E7'),"the coordinate: %s should correspond to %s instead of %s"%('(31,58)',"('E4','E7')",Board.coordinates_int_to_string((31,58)))
+    assert Board.coordinates_int_to_string((78,15)) == ('G9','G2'),"the coordinate: %s should correspond to %s instead of %s"%('(78,15)',"('G9','G2')",Board.coordinates_int_to_string((78,15)))
+    assert Board.coordinates_int_to_string((8,0))   == ('I1','A1'),"the coordinate: %s should correspond to %s instead of %s"%('(8,0)',"('I1','A1')",Board.coordinates_int_to_string((8,0)))
+    assert Board.coordinates_int_to_string((54,13)) == ('A7','E2'),"the coordinate: %s should correspond to %s instead of %s"%('(54,13)',"('A7','E2')",Board.coordinates_int_to_string((54,13)))
 
+def test_coordinatesstringtoint():
+    assert Board.coordinates_string_to_int(('B3','H3')) == (19,25),"the coordinate: %s should correspond to %s instead of %s"%("('B3','H3')",'(19,25)',Board.coordinates_string_to_int(('B3','H3')))
+    assert Board.coordinates_string_to_int(('E5','A9')) == (40,72),"the coordinate: %s should correspond to %s instead of %s"%("('E5','A9')",'(40,72)',Board.coordinates_string_to_int(('E5','A9')))
+    assert Board.coordinates_string_to_int(('G2','G6')) == (15,51),"the coordinate: %s should correspond to %s instead of %s"%("('G2','G6')",'(15,51)',Board.coordinates_string_to_int(('G2','G6')))
+    assert Board.coordinates_string_to_int(('E6','A6')) == (49,45),"the coordinate: %s should correspond to %s instead of %s"%("('E6','A6')",'(49,45)',Board.coordinates_string_to_int(('E6','A6')))
+    assert Board.coordinates_string_to_int(('F9','I9')) == (77,80),"the coordinate: %s should correspond to %s instead of %s"%("('F9','I9')",'(77,80)',Board.coordinates_string_to_int(('F9','I9')))
+
+
+    
 #boardP1 = Board(pos1, PLAYER1)
 #test_posupdate()
 #print(boardP1.capture_segments(boardP1, PLAYER1))
