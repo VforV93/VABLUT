@@ -17,6 +17,7 @@ class Board(object):
  
         self._pos = pos
         self._stm = stm
+        self._draw_dic = draw_dic
         if end == COMPUTE:
             self._end = self._check_end(self.pos, last_move, draw_dic)
         else:
@@ -55,15 +56,17 @@ class Board(object):
             pos = pos.flatten()
             if pos[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
                 return PLAYER1
-            #pos drug
-            i_king = _indices.flatten()[pos == KING_VALUE][0]
-            pos = self.pos_update(pos, last_move)
-            pos[i_king] = KING_VALUE
-            for seg in king_capture_segments[i_king]:
-                if last_move in seg:
-                    c = np.bincount(pos[seg])
-                    if c[PLAYER1] == len(seg)-1:
-                        return PLAYER1
+            
+            if self.stm == PLAYER2:             
+                #pos drug
+                i_king = _indices.flatten()[pos == KING_VALUE][0]
+                pos = self.pos_update(pos, last_move)
+                pos[i_king] = KING_VALUE
+                for seg in king_capture_segments[i_king]:
+                    if last_move in seg:
+                        c = np.bincount(pos[seg])
+                        if c[PLAYER1] == len(seg)-1:
+                            return PLAYER1
         return None
     
     @classmethod
@@ -152,7 +155,8 @@ class Board(object):
                 check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-        return Board(future_pos, self.other, COMPUTE, TO)
+       # print('TO:%s'%TO)
+        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic)
     
     #Return the vector between FROM and TO
     @classmethod

@@ -396,13 +396,15 @@ def test_checkend():
     board5_2 = Board(pos5, PLAYER2, COMPUTE, 57)
     board5_3 = Board(pos5, PLAYER1, COMPUTE, 47)
     board5_4 = Board(pos5, PLAYER1, COMPUTE, 65, draw_dic)
+    board5_5 = Board(pos5, PLAYER1, COMPUTE, 56)
     assert board5_1.end is PLAYER1,"\n%s \n the end should be %s(PLAYER1)"%(board5_1,PLAYER1)
     assert board5_2.end is PLAYER1,"\n%s \n the end should be %s(PLAYER1)"%(board5_2,PLAYER1)
     assert board5_3.end is None,"\n%s \n the end should be None"%(board5_3)
     assert board5_4.end is None,"\n%s \n the end should be None"%(board5_4)
     board5_4again = Board(pos5, PLAYER1, COMPUTE, 65, draw_dic)
     assert board5_4again.end is DRAW,"\n%s \n the end should be DRAW"%(board5_4again)
-
+    assert board5_5.end is None,"\n%s \n the end should be None"%(board5_5)
+    
     board6_1 = Board(pos6, PLAYER2, COMPUTE, 19)
     board6_2 = Board(pos6, PLAYER2, COMPUTE, 27)
     board6_3 = Board(pos6, PLAYER1, COMPUTE, 28)
@@ -732,6 +734,107 @@ def test_getallmoves():
     
     assert len(b1_pm) == 47,"the following board:\n%s\nshould have %s possible moves instead of %s per Player:%s"%(board1,38,len(b1_pm),board1.stm)
     
+    
+def test_move_b3():
+    b3 = Board(pos3, PLAYER2, COMPUTE, 65, {})#W move
+    
+    b3_1 = b3.move(('F8','F7'))
+    b3_1_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [1,0,0,0,2,1,0,0,0],
+                         [1,1,0,0,0,3,1,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [0,0,1,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_1.pos.flatten() == b3_1_pos.flatten()).all()
+    
+    b3_2 = b3_1.move(('C8','C7'))
+    b3_2_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [1,0,0,0,2,1,0,0,0],
+                         [1,1,0,0,0,3,1,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [0,0,1,0,0,2,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_2.pos.flatten() == b3_2_pos.flatten()).all()
+    
+    b3_3 = b3_2.move(('E4','E3'))
+    b3_3_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [1,0,0,0,0,1,0,0,0],
+                         [1,1,0,0,0,3,1,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [0,0,1,0,0,2,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_3.pos.flatten() == b3_3_pos.flatten()).all()
+    
+    b3_4 = b3_3.move(('G5','G7'))
+    b3_4_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [1,0,0,0,0,1,0,0,0],
+                         [1,1,0,0,0,3,0,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [0,0,1,0,0,2,1,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_4.pos.flatten() == b3_4_pos.flatten()).all()
+    
+    b3_5 = b3_4.move(('E3','F3'))
+    b3_5_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,3,0,0,0],
+                         [0,0,0,0,2,0,0,0,0],
+                         [0,0,1,0,0,2,1,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_5.pos.flatten() == b3_5_pos.flatten()).all()
+    
+    b3_6 = b3_5.move(('C7','E7'))
+    b3_6_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,3,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,1,0,1,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_6.pos.flatten() == b3_6_pos.flatten()).all()
+    
+    b3_7 = b3_6.move(('F5','F7'))
+    b3_7_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,1,3,1,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    assert (b3_7.pos.flatten() == b3_7_pos.flatten()).all()
+    
+    b3_8 = b3_7.move(('G7','H7'))
+    b3_8_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,1,3,0,1,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])
+    print(b3_8._draw_dic)
+    assert (b3_8.pos.flatten() == b3_8_pos.flatten()).all()
+    
 #boardP1 = Board(pos1, PLAYER1)
-#test_getallmoves()
+test_move_b3()
 #print(boardP1.capture_segments(boardP1, PLAYER1))
