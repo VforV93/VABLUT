@@ -1,4 +1,4 @@
-from board import Board, PLAYER1, PLAYER2, DRAW
+from vablut.board import Board, PLAYER1, PLAYER2, DRAW
 
 class GameHandler(object):
     def __init__(self, engine1, engine2, verbose=False):
@@ -7,7 +7,7 @@ class GameHandler(object):
         self.verbose = verbose
         
     def play(self):
-        b = Board()
+        b = Board(draw_dic={})
         
         players = {
             PLAYER1: self.engine1,
@@ -28,5 +28,6 @@ class GameHandler(object):
         else:
             winner = players[b.end]
             looser = players[PLAYER1 if b.end == PLAYER2 else PLAYER2]
+        print(b)
 
         return b, winner, looser

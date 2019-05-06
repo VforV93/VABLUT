@@ -100,7 +100,7 @@ cap_el.append(throne_el)
 for c in camps:
    cap_el.append(c[0])
    cap_el.append(c[2])
-   cap_el.append(c[3]) 
+   cap_el.append(c[3])
 capturing_dic[PLAYER1]    = np.asarray(cap_el[:])
 capturing_dic[PLAYER2]    = np.asarray(cap_el[:])
 capturing_dic[KING_VALUE] = np.asarray(cap_el[:])

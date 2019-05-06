@@ -112,7 +112,6 @@ class Board(object):
 
         #Conversation from ('letter''number', 'letter''number') to ('0-48', '0-48')
         FROM, TO = self.coordinates_string_to_int(m)
-        #print('FROM: %s, TO:%s'%(FROM,TO))
         
         #FROM piece must be a self.stm piece(if stm == PLAYER2, FROM can be W or K)
         if not ((self.stm == PLAYER1 and check_pos.flatten()[FROM] == self.stm) or (self.stm == PLAYER2 and (check_pos.flatten()[FROM] == self.stm or check_pos.flatten()[FROM] == KING_VALUE))):
@@ -143,19 +142,27 @@ class Board(object):
         #Captures Check
         for s in rev_segments[TO]:
             seg = check_drug_pos[s].copy()
-            seg_pos = check_pos[s]
-            if seg[1] != self.other:#Non posso mangiare il re, è utlizzato dal _check_end per controllare se l'intorno lo ha catturato o meno
+            seg_pos = check_pos[s].copy()
+            if seg[1] != self.other and seg_pos[1] != self.other:
                 continue
+            
             seg[seg==KING_VALUE] = PLAYER2
             c = np.bincount(seg)
             if c[0] or len(c)!=3:
                 continue
-            if c[self.stm]==2:
+            if c[self.stm]==2 and seg[0] == self.stm and seg[2] == self.stm:
+                seg_pos[1]=0
+                check_pos[s] = seg_pos
+            
+            seg_pos[seg==KING_VALUE] = PLAYER2
+            c = np.bincount(seg_pos)
+            if c[0] or len(c)!=3:
+                continue
+            if c[self.stm]==2 and seg[0] == self.stm and seg[2] == self.stm:
                 seg_pos[1]=0
                 check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-       # print('TO:%s'%TO)
         return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic)
     
     #Return the vector between FROM and TO
