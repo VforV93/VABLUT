@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import numpy as np
 from vablut.board import *
 import pytest
 
@@ -734,7 +735,6 @@ def test_getallmoves():
     
     assert len(b1_pm) == 47,"the following board:\n%s\nshould have %s possible moves instead of %s per Player:%s"%(board1,38,len(b1_pm),board1.stm)
     
-    
 def test_move_b3():
     b3 = Board(pos3, PLAYER2, COMPUTE, 65, {})#W move
     
@@ -832,9 +832,49 @@ def test_move_b3():
                          [0,0,0,0,1,3,0,1,0],
                          [0,0,0,0,0,0,0,0,0],
                          [0,0,0,0,0,0,0,0,0]])
-    print(b3_8._draw_dic)
     assert (b3_8.pos.flatten() == b3_8_pos.flatten()).all()
-    
+
+    b3_9 = b3_8.move(('F7','G7'))
+    b3_9_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,1,0,3,1,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])                    
+    assert (b3_9.pos.flatten() == b3_9_pos.flatten()).all()
+
+    b3_10 = b3_9.move(('E7','F7'))
+    b3_10_pos = np.array([[0,0,0,0,1,0,0,0,0],
+                         [0,0,2,0,1,0,0,0,0],
+                         [0,0,0,0,0,2,0,0,0],
+                         [1,0,0,0,0,0,0,0,0],
+                         [1,1,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,1,3,1,0],
+                         [0,0,0,0,0,0,0,0,0],
+                         [0,0,0,0,0,0,0,0,0]])           
+    assert (b3_10.pos.flatten() == b3_10_pos.flatten()).all()
+    assert b3_10.end == PLAYER1,"\n%s \n the end should be %s(PLAYER1)"%(b3_10,PLAYER1)
+
+def test_move_b6():
+    b6 = Board(pos6, PLAYER1, COMPUTE, 28)
+
+    b6_ended = b6.move(('I4','C4'))
+    b6_ended_pos = np.array([[0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,1,0,0,0,0],
+                            [0,1,0,0,0,0,0,2,0],
+                            [1,3,1,0,0,0,0,0,0],
+                            [0,0,0,0,0,2,0,0,0],
+                            [0,2,2,0,1,0,0,0,1],
+                            [0,0,0,0,0,0,0,0,0],
+                            [0,0,0,0,0,0,0,0,0],
+                            [0,0,1,0,1,1,0,0,0]])
+    assert (b6_ended.pos.flatten() == b6_ended_pos.flatten()).all()
+    assert b6_ended.end == PLAYER1,"\n%s \n the end should be %s(PLAYER1)"%(b6_ended,PLAYER1)
+
 #boardP1 = Board(pos1, PLAYER1)
-test_move_b3()
+#test_move_b6()
 #print(boardP1.capture_segments(boardP1, PLAYER1))
