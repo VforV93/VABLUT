@@ -1,5 +1,4 @@
-# coding=utf-8
-#rules followed http://tafl.cyningstan.com/page/171/rules-for-brandub
+# -*- coding: utf-8 -*-
 import numpy as np
 from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments
 from vablut.modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
@@ -8,22 +7,19 @@ from random import shuffle
 COL = int(len(_indices[0]))
 ROW = int(len(_indices.transpose()[0]))
 
-draw_dic = {}
-
 class WrongMoveError(Exception):
     pass
 
 class Board(object):
-    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None):
+    def __init__(self, pos=None, stm=PLAYER2, end=COMPUTE, last_move=None, draw_dic=None):
         if pos is None:
             pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
-            global draw_dic
-            draw_dic = {}
  
         self._pos = pos
         self._stm = stm
+        self._draw_dic = draw_dic
         if end == COMPUTE:
-            self._end = self._check_end(self.pos, last_move)
+            self._end = self._check_end(self.pos, last_move, draw_dic)
         else:
             self._end = end
 
@@ -43,11 +39,12 @@ class Board(object):
     def pos(self):
         return (PLAYER1*self._pos[PLAYER1]+PLAYER2*self._pos[PLAYER2][0]+KING_VALUE*self._pos[PLAYER2][1])
     
-    def _check_end(self, pos, last_move=None):
-        if self.hashkey() in draw_dic:
-            return DRAW
-        else:
-            draw_dic[self.hashkey()] = True
+    def _check_end(self, pos, last_move=None, draw_dic=None):
+        if draw_dic is not None:
+            if self.hashkey() in draw_dic:
+                return DRAW
+            else:
+                draw_dic[self.hashkey()] = True
         
         if KING_VALUE in self.win_segments(pos):
             return PLAYER2
@@ -59,21 +56,23 @@ class Board(object):
             pos = pos.flatten()
             if pos[pos==KING_VALUE].sum() == 0:#if in the previous black movement the king is been captured
                 return PLAYER1
-            #pos drug
-            i_king = _indices.flatten()[pos == KING_VALUE][0]
-            pos = self.pos_update(pos, last_move)
-
-            for seg in king_capture_segments[i_king]:
-                if last_move in seg:
-                    c = np.bincount(pos[seg])
-                    if c[PLAYER1] == len(seg)-1:
-                        return PLAYER1
+            
+            if self.stm == PLAYER2:             
+                #pos drug
+                i_king = _indices.flatten()[pos == KING_VALUE][0]
+                pos = self.pos_update(pos, last_move)
+                pos[i_king] = KING_VALUE
+                for seg in king_capture_segments[i_king]:
+                    if last_move in seg:
+                        c = np.bincount(pos[seg])
+                        if c[PLAYER1] == len(seg)-1:
+                            return PLAYER1
         return None
     
     @classmethod
     def win_segments(cls, pos):
         if isinstance(pos, Board):
-            return cls.segments(pos.pos)
+            return cls.win_segments(pos.pos)
         else:
             pos = pos.flatten()
             return pos[winning_el]
@@ -113,7 +112,6 @@ class Board(object):
 
         #Conversation from ('letter''number', 'letter''number') to ('0-48', '0-48')
         FROM, TO = self.coordinates_string_to_int(m)
-        #print('FROM: %s, TO:%s'%(FROM,TO))
         
         #FROM piece must be a self.stm piece(if stm == PLAYER2, FROM can be W or K)
         if not ((self.stm == PLAYER1 and check_pos.flatten()[FROM] == self.stm) or (self.stm == PLAYER2 and (check_pos.flatten()[FROM] == self.stm or check_pos.flatten()[FROM] == KING_VALUE))):
@@ -144,19 +142,28 @@ class Board(object):
         #Captures Check
         for s in rev_segments[TO]:
             seg = check_drug_pos[s].copy()
-            seg_pos = check_pos[s]
-            if seg[1] != self.other:#Non posso mangiare il re, è utlizzato dal _check_end per controllare se l'intorno lo ha catturato o meno
+            seg_pos = check_pos[s].copy()
+            if seg[1] != self.other and seg_pos[1] != self.other:
                 continue
+            
             seg[seg==KING_VALUE] = PLAYER2
             c = np.bincount(seg)
             if c[0] or len(c)!=3:
                 continue
-            if c[self.stm]==2:
+            if c[self.stm]==2 and seg[0] == self.stm and seg[2] == self.stm:
+                seg_pos[1]=0
+                check_pos[s] = seg_pos
+            
+            seg_pos[seg==KING_VALUE] = PLAYER2
+            c = np.bincount(seg_pos)
+            if c[0] or len(c)!=3:
+                continue
+            if c[self.stm]==2 and seg[0] == self.stm and seg[2] == self.stm:
                 seg_pos[1]=0
                 check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-        return Board(future_pos, self.other, COMPUTE, TO)
+        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic.copy())
     
     #Return the vector between FROM and TO
     @classmethod
@@ -181,22 +188,6 @@ class Board(object):
         ret = pos.flatten()
         
         return ret[line]
-       
-    #Return the trios-pos vector where TO is the first or last element
-    @classmethod     
-    def capture_segments(cls, pos, player):
-        #print(type(pos))
-        if isinstance(pos, cls):
-            return cls.capture_segments(pos.pos, player)
-        else:
-            pos = pos.flatten()
-            mask = pos == player
-            TOs = _indices.flatten()[mask]
-            if TOs.size:
-                pos = Board.pos_update_capturing(pos, TOs[0])
-            
-            print(pos.reshape((9,9)))
-            return pos[capture_segments]
     
     #Transform a compact board's raffiguration(2-Dmatric with 0,1,2,3 elements) to the corresponding dictionary raffiguration 
     @classmethod
@@ -219,7 +210,7 @@ class Board(object):
         if piece == 0:
             return pos
         pos[capturing_dic[piece]] = piece
-        pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
+        #pos[throne_el] = piece  #THRONE always considerated friend, the camp's elements(the center one not included) friends if they are not occupied
         return pos
     
     #the actual and real pos(board configuration) is updated setting the prohibited elements for piece = piece if the element is empty
@@ -229,10 +220,9 @@ class Board(object):
         piece = pos[FROM] #1:black 2:white 3:king
         if piece == 0:
             return pos
-        mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
-
-        seg = prohibited_segments[piece][FROM]
-        pos[seg[mask]] = piece
+        #NO -> TO DRUG ALWAYS mask = pos[prohibited_segments[piece][FROM]] == 0 #elements to modified just if in pos the el is empty
+        #seg = prohibited_segments[piece][FROM]
+        pos[prohibited_segments[piece][FROM]] = piece
         return pos
     
     def get_all_moves(self):
@@ -260,7 +250,6 @@ class Board(object):
     def coordinates_int_to_string(cls, m, col=COL, row=ROW):
         if not isinstance(m, tuple):
             raise ValueError('Move conversion Error: m is not a tuple')
-
         
         FROM, TO = int(m[0]), int(m[1])
         alp = { 1:'A', 2:'B', 3:'C', 4:'D', 5:'E', 6:'F', 7:'G', 8:'H', 9:'I' }
@@ -374,4 +363,3 @@ class Board(object):
                     return True
         return False
                     
-        
