@@ -1,6 +1,6 @@
 import random
 import time
-from base import Engine
+from vablut.engine.base import Engine
 
 class RandomEngine(Engine):
     def __init__(self, delay=None):
