@@ -15,42 +15,45 @@ NAME = "TABRUTT"
 #deve poter accettare un parametro che definisce se sei nero o bianco, nel costruttore chiamato engine
 class GameJavaHandler(object):    
     def __init__(self, engine, playerType, verbose=False):
-        self.engine = engine
-        self.verbose = verbose
- #1       
+        self.engine     = engine
+        self.verbose    = verbose
+        self.playerType = playerType
+
+    def play(self):
+#1       
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        if(playerType.upper() == 'WHITE'): #l'idea è quella di estrarre una property dall'engine che mi dica chi è
+        if(self.playerType.upper() == 'WHITE'): #l'idea è quella di estrarre una property dall'engine che mi dica chi è
             sock.connect((HOST, WHITEPORT))
         else:
             sock.connect((HOST, BLACKPORT))
 #2
         x = json.dumps(NAME)
         utils.write_utf8(x, sock)
-        #temp = json.dumps(toSend)
-        #temp = toSend.toByte
-        #sock.sendall(json.dumps(x).encode('utf-8'))
-        #sock.send(len(u).to_bytes(2, byteorder='big'))
-        #sock.send(u)
-        
 #3
+        state = utils.read_utf8(sock)
+        state_pos = self.from_json_to_pos(state)
+        board = Board(state_pos, draw_dic={})
         while(True):
-            state = utils.read_utf8(sock)
-            state_dic = GameJavaHandler.from_json_to_dic(state)
-            
+            print(board)
+            if(self.playerType.upper() == 'WHITE'):
+                state = utils.read_utf8(sock)
+            else:
+                state = utils.read_utf8(sock)
+
     @classmethod
-    def from_json_to_board(cls, gson_state):
-        state   = json.loads(state)
+    def from_json_to_pos(cls, gson_state):
+        state   = json.loads(gson_state)
         pos     = np.asarray(state['board']).flatten()
-        pos[raw_pos=='EMPTY'] = 0
-        pos[raw_pos=='BLACK'] = PLAYER1
-        pos[raw_pos=='WHITE'] = PLAYER2
-        pos[raw_pos=='KING']  = KING_VALUE
-        
-        board = Board.from_pos_to_dic(pos)
-        print(board)
+        pos[pos=='EMPTY'] = 0
+        pos[pos=='BLACK'] = int(PLAYER1)
+        pos[pos=='WHITE'] = int(PLAYER2)
+        pos[pos=='KING']  = int(KING_VALUE)
+        pos = np.asarray(pos, dtype=int)
+        return Board.from_pos_to_dic(pos) 
         
 gh= GameJavaHandler(RandomEngine, 'white', True)
-        
+gh.play()
+
 #cosa fare?
         #1-connettersi a localhost (andare a vedere le porte)
         #2-inviare nome es. "TABRUTT"
