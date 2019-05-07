@@ -163,7 +163,7 @@ class Board(object):
                 check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic)
+        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic.copy())
     
     #Return the vector between FROM and TO
     @classmethod
