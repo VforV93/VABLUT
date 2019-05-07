@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
-
 import socket
 import json
 
+import numpy as np
 from vablut.engine.random import RandomEngine
 from vablut.modules.Utils import utils
+from vablut.board import Board, PLAYER1, PLAYER2, KING_VALUE, DRAW
 
 HOST = "localhost"
 WHITEPORT = 5800
@@ -32,10 +33,21 @@ class GameJavaHandler(object):
         #sock.send(u)
         
 #3
-        while(true):
-            state=utils.read_utf8(sock)
-            print(state)
-            #print(data)
+        while(True):
+            state = utils.read_utf8(sock)
+            state_dic = GameJavaHandler.from_json_to_dic(state)
+            
+    @classmethod
+    def from_json_to_board(cls, gson_state):
+        state   = json.loads(state)
+        pos     = np.asarray(state['board']).flatten()
+        pos[raw_pos=='EMPTY'] = 0
+        pos[raw_pos=='BLACK'] = PLAYER1
+        pos[raw_pos=='WHITE'] = PLAYER2
+        pos[raw_pos=='KING']  = KING_VALUE
+        
+        board = Board.from_pos_to_dic(pos)
+        print(board)
         
 gh= GameJavaHandler(RandomEngine, 'white', True)
         
