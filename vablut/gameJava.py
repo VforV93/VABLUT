@@ -2,14 +2,17 @@
 
 import socket
 import json
+
 from vablut.engine.random import RandomEngine
+from vablut.modules.Utils import utils
 
 HOST = "localhost"
 WHITEPORT = 5800
 BLACKPORT = 5801
+NAME = "TABRUTT"
 
 #deve poter accettare un parametro che definisce se sei nero o bianco, nel costruttore chiamato engine
-class GameJavaHandler(object):
+class GameJavaHandler(object):    
     def __init__(self, engine, playerType, verbose=False):
         self.engine = engine
         self.verbose = verbose
@@ -20,18 +23,19 @@ class GameJavaHandler(object):
         else:
             sock.connect((HOST, BLACKPORT))
 #2
-        x = "TABRUTT"
-        #print(json.dumps(x))
-        u = x.encode('utf-8')
+        x = json.dumps(NAME)
+        utils.write_utf8(x, sock)
         #temp = json.dumps(toSend)
         #temp = toSend.toByte
         #sock.sendall(json.dumps(x).encode('utf-8'))
-        sock.send(len(u).to_bytes(2, byteorder='big'))
-        sock.send(u)
+        #sock.send(len(u).to_bytes(2, byteorder='big'))
+        #sock.send(u)
         
 #3
-        #data=sock.read(1024)
-        #print(data)
+        while(true):
+            state=utils.read_utf8(sock)
+            print(state)
+            #print(data)
         
 gh= GameJavaHandler(RandomEngine, 'white', True)
         
