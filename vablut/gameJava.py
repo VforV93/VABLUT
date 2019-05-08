@@ -12,6 +12,8 @@ WHITEPORT = 5800
 BLACKPORT = 5801
 NAME = "TABRUTT"
 
+players = {"BLACK": PLAYER1, "WHITE": PLAYER2}
+
 #deve poter accettare un parametro che definisce se sei nero o bianco, nel costruttore chiamato engine
 class GameJavaHandler(object):    
     def __init__(self, engine, playerType, verbose=False):
@@ -27,32 +29,55 @@ class GameJavaHandler(object):
         else:
             sock.connect((HOST, BLACKPORT))
 #2
-        x = json.dumps(NAME)
+        x = json.dumps(NAME + '_' + self.playerType)
         utils.write_utf8(x, sock)
 #3
         state = utils.read_utf8(sock)
+        state   = json.loads(state)
         state_pos = self.from_json_to_pos(state)
-        board = Board(state_pos, draw_dic={})
+        b = Board(state_pos, draw_dic={})
         while(True):
-            print(board)
-            if(self.playerType.upper() == 'WHITE'):
+            print(b)
+            print(b._draw_dic)
+            if(players[self.playerType.upper()] == b.stm):
+                move = self.engine.choose(b)
+                print(move)
+                temp = {}
+                temp['from'] = move[0]
+                temp['to'] = move[1]
+                temp['turn'] = self.playerType.upper()
+                move = json.dumps(temp)
+                utils.write_utf8(move, sock)
                 state = utils.read_utf8(sock)
+                b = self.draw_board_from_server(state, b)
             else:
-                state = utils.read_utf8(sock)
+                #state = utils.read_utf8(sock)
+                print("In attesa dell'avversario")
+            
+            state = utils.read_utf8(sock)
+            b = self.draw_board_from_server(state, b)
 
     @classmethod
     def from_json_to_pos(cls, gson_state):
-        state   = json.loads(gson_state)
-        pos     = np.asarray(state['board']).flatten()
-        pos[pos=='EMPTY'] = 0
-        pos[pos=='BLACK'] = int(PLAYER1)
-        pos[pos=='WHITE'] = int(PLAYER2)
-        pos[pos=='KING']  = int(KING_VALUE)
+        pos     = np.asarray(gson_state['board']).flatten()
+        pos[pos=='EMPTY']  = 0
+        pos[pos=='THRONE'] = 0
+        pos[pos=='BLACK']  = int(PLAYER1)
+        pos[pos=='WHITE']  = int(PLAYER2)
+        pos[pos=='KING']   = int(KING_VALUE)
         pos = np.asarray(pos, dtype=int)
         return Board.from_pos_to_dic(pos) 
+    
+    @classmethod
+    def draw_board_from_server(cls, state: str, b: Board):
+        state   = json.loads(state)
+        state_pos = cls.from_json_to_pos(state)
+        return Board(state_pos, players[state['turn']], draw_dic=b._draw_dic)
         
-gh= GameJavaHandler(RandomEngine, 'white', True)
-gh.play()
+
+
+gh1 = GameJavaHandler(RandomEngine(0.5), 'black', True)
+gh1.play()
 
 #cosa fare?
         #1-connettersi a localhost (andare a vedere le porte)
