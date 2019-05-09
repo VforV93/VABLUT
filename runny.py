@@ -15,5 +15,6 @@ def main():
 
     gh= GameJavaHandler(RandomEngine(3), 'black', True)
     gh.play()
+    
 if __name__ == '__main__':
     main()

@@ -163,7 +163,11 @@ class Board(object):
                 check_pos[s] = seg_pos
             
         future_pos = self.from_pos_to_dic(check_pos, COL, ROW)
-        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = self._draw_dic.copy())
+        future_draw_dic = None
+        if self._draw_dic:
+            future_draw_dic =self._draw_dic.copy()
+            
+        return Board(future_pos, self.other, COMPUTE, TO, draw_dic = future_draw_dic)
     
     #Return the vector between FROM and TO
     @classmethod
@@ -281,6 +285,12 @@ class Board(object):
         return hash(str(self.pos))
     
     # === === === Method for Evaluator purpose === === ===
+    #Return [# black pieces, # white pieces(king excluded)]
+    @classmethod
+    def number_pieces(cls, pos):
+        c = np.bincount(pos.flatten(), minlength=3)
+        return np.asarray([c[PLAYER1], c[PLAYER2]], dtype=int)
+    
     #Return black pieces - white pieces(king excluded)
     @classmethod
     def pieces_difference(cls, pos):
