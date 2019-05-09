@@ -1,14 +1,9 @@
 #da linea di comando leggere se BLACK o WHITE. 
 #Istanziare poi l'engine associato e passarlo al gamehandler
-#from sys import getsizeof
 from vablut.engine.random import RandomEngine
 from vablut.engine.human import HumanEngine
 from vablut.game import GameHandler
 from vablut.gameJava import GameJavaHandler
-
-from vablut.board import Board
-from vablut.evaluate.evaluate_glutton import Evaluator_glutton
-from vablut.engine.greedy import WeightedGreedyEngine
 
 def main():
 # =============================================================================
@@ -18,14 +13,8 @@ def main():
 #     gh.play()
 # =============================================================================
 
-#    gh= GameJavaHandler(RandomEngine(3), 'white', True)
-#    gh.play()
-
-    b    = Board(draw_dic = {})
-    ev_g = Evaluator_glutton([1])
-    eng  = WeightedGreedyEngine(ev_g)
-
-    eng.choose(b)
+    gh= GameJavaHandler(RandomEngine(3), 'black', True)
+    gh.play()
     
 if __name__ == '__main__':
     main()

@@ -23,11 +23,16 @@ class GameJavaHandler(object):
 
     def play(self):
 #1       
+        print('%s PLAY started'%self.playerType)
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        print('%s mi provo a collegare'%self.playerType)
+
         if(self.playerType.upper() == 'WHITE'): #l'idea è quella di estrarre una property dall'engine che mi dica chi è
             sock.connect((HOST, WHITEPORT))
         else:
             sock.connect((HOST, BLACKPORT))
+
+        print('%s CONNESSO!'%self.playerType)
 #2
         x = json.dumps(NAME + '_' + self.playerType)
         utils.write_utf8(x, sock)
@@ -74,11 +79,6 @@ class GameJavaHandler(object):
         state_pos = cls.from_json_to_pos(state)
         return Board(state_pos, players[state['turn']], draw_dic=b._draw_dic)
         
-
-
-gh1 = GameJavaHandler(RandomEngine(0.5), 'black', True)
-gh1.play()
-
 #cosa fare?
         #1-connettersi a localhost (andare a vedere le porte)
         #2-inviare nome es. "TABRUTT"

@@ -1,6 +1,5 @@
 import numpy as np
 from vablut.board import Board, PLAYER1, PLAYER2, DRAW
-from sys import getsizeof
 from vablut.evaluate.base import Evaluator, INF
 
 class Evaluator_glutton(Evaluator):
