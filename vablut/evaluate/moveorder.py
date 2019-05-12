@@ -19,14 +19,14 @@ class MoveOrder(object):
 
         self._order = dispatcher[name.lower()]
 
-    def _order_seq(self, board, moves):
+    def _order_seq(self, board, moves, evaluator = None):
         return moves
 
-    def _order_random(self, board, moves):
+    def _order_random(self, board, moves, evaluator = None):
         random.shuffle(moves)
         return moves
 
-    def _order_diff(self, board, moves):
+    def _order_diff(self, board, moves, evaluator = None):
         if len(moves) <= 1:
             return moves
 

@@ -38,7 +38,7 @@ def evaldiff(board: Board, m, weights=None):
     #I use the default weights
     if weights is None:
         weights = {
-            PLAYER1:np.array([ 3, 2, 4, 15, 5, 12, 0 ], dtype=int),
+            PLAYER1:np.array([ 10, 2, 4, 15, 5, 12, 0 ], dtype=int),
             PLAYER2:np.array([ 3, 4, 2, 10, 5, 1, 15], dtype=int)}
     else:
         weights = {board.stm: weights}

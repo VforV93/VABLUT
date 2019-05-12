@@ -1,21 +1,7 @@
 from vablut.evaluate.base import INF
-from vablut.engine.negamax import NegamaxEngine
+from vablut.engine.alphabeta import AlphaBetaEngine
 
-class AlphaBetaEngine(NegamaxEngine):
-    FORMAT_STAT = (
-        'score: {score} [time: {time:0.3f}s, pv: {pv}]\n' +
-        'nps: {nps}, nodes: {nodes}, betacuts: {betacuts}\n' +
-        'leaves: {leaves}, draws: {draws}, mates: {mates}'
-        )
-
-    def __init__(self, evaluator, moveorder, maxdepth=2, verbose=True):
-        super(AlphaBetaEngine, self).__init__(evaluator, maxdepth, verbose)
-        self.moveorder = moveorder.order
-
-    def initcnt(self):
-        super(AlphaBetaEngine, self).initcnt()
-        self._counters['betacuts'] = 0
-
+class PVSEngine(AlphaBetaEngine):
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, hint=None):
         self.inc('nodes')
 
@@ -28,8 +14,18 @@ class AlphaBetaEngine(NegamaxEngine):
 
         bestmove = []
         bestscore = alpha
-        for m in self.moveorder(board, board.get_all_moves(), hint, self._evaluator):
-            nextmoves, score = self.search(board.move(m), depth-1, ply+1, -beta, -bestscore)
+        for i, m in enumerate(self.moveorder(board, board.get_all_moves(), hint, self._evaluator)):
+            if i == 0 or depth == 1 or (beta-alpha) == 1:
+                nextmoves, score = self.search(board.move(m), depth-1, ply+1, -beta, -bestscore)
+            else:
+                # pvs uses a zero window for all the other searches
+                _, score = self.search(board.move(m), depth-1, ply+1, -bestscore-1, -bestscore)
+                score = -score
+                if score > bestscore:
+                    nextmoves, score = self.search(board.move(m), depth-1, ply+1, -beta, -bestscore)
+                else:
+                    continue
+
             score = -score
             if score > bestscore:
                 bestscore = score
@@ -47,4 +43,4 @@ class AlphaBetaEngine(NegamaxEngine):
         return bestmove, bestscore
 
     def __str__(self):
-            return 'AlphaBeta(%s)' % self._maxdepth
+        return 'PVS(%s)' % self._maxdepth

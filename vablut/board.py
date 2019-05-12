@@ -299,39 +299,39 @@ class Board(object):
     
     #Number of winning elements that are blocked from w/b and number of w/b pieces that can get with 1 movement
     @classmethod
-    def escape_el_stats(cls, pos): #[OCCUPIED from w, OCCUPIED from b, 1 move w to occupied, 1 move b to occupied]
-        stats = {PLAYER1: np.zeros(2, dtype=int), PLAYER2: np.zeros(2, dtype=int), KING_VALUE: np.zeros(2, dtype=int)}
+    def escape_el_stats(cls, pos): #[OCCUPIED from w, OCCUPIED from b, 1 move w to occupied, 1 move b to occupied, free escape line]
+        stats       = {PLAYER1: np.zeros(2, dtype=int), PLAYER2: np.zeros(2, dtype=int), KING_VALUE: np.zeros(2, dtype=int)}
         block_stats = {PLAYER1: np.zeros(3, dtype=int), PLAYER2: np.zeros(3, dtype=int), KING_VALUE: np.zeros(3, dtype=int)} # b:[blocking black, blocking white, blocking king] w:same k:same
+        free_esc_seg= 0
+        possible_free_line = [_indices[2], _indices[-3], _indices.transpose()[2], _indices.transpose()[-3]]
+
         pos = pos.flatten()
         for w in winning_el:
-            if pos[w]: # if w pos is full it will be impossible get it on
-                #print('w-pos: %s occupata da Pezzo%s'%(str(w),pos[w]))
+            if pos[w]:                  #if w pos is full it will be impossible get it on
                 stats[pos[w]][0] += 1
                 continue
             for pms in possible_move_segments[w]:
                 segment = pos[pms]
-                if not segment.sum():#void board segment filtered
-                    #print('%s - %s FILTRATO'%(segment,pms))
+                if not segment.sum():   #avoid board segment filtered
                     continue
                 c = np.bincount(segment, minlength=4)
-                if c[1:].sum()==1 and segment[-1]!=0:#1 move check
+                if c[1:].sum()==1 and segment[-1]!=0:   #1 move check
                     if cls.pos_update(pos,pms[-1])[pms[1:-1]].sum() == 0:
                         stats[segment[-1]][1] += 1
-                        #print('%s - %s <-- Pezzo%s 1 move to winning %s-pos'%(segment,pms,segment[-1],pms[0]))
-                    #else:
-                    #    print('%s - %s <-- Pezzo%s 1 move OSTACOLATO to %s-pos[%s]'%(segment,pms,segment[-1],pms[0],self.pos_update(pos,pms[-1])[pms[1:-1]]))
-                elif segment[-1]!=0: # Direct Blocking check [win_el, 0, ..., ->#<-, 0, ..., #]
+                elif c[1:].sum()==2 and segment[-1]!=0: #Direct Blocking check [win_el, 0, ..., ->#<-, 0, ..., #]
                     cutted_seg = segment[1:-1]
                     if (cutted_seg == cls.pos_update(pos,pms[-1])[pms[1:-1]]).all():
-                        #print('prima:%s dopo:%s uguale a:%s'%(segment,cutted_seg,self.pos_update(pos,pms[-1])[pms[1:-1]]))
                         cutted_seg = cutted_seg[cutted_seg>0]
                         if len(cutted_seg) == 1:
                             block_stats[cutted_seg[0]][segment[-1]-1] += 1
-                    #else:
-                    #    print('prima:%s dopo:%s uguale a:%s FILTRATO'%(segment,cutted_seg,self.pos_update(pos,pms[-1])[pms[1:-1]]))
-        #print('[Occupied w els, 1 move to w els]- B%s  W%s  K%s'%(stats[PLAYER1],stats[PLAYER2],stats[KING_VALUE]))
-        #print('[blocking B pieces, blocking W pieces, blocking the K]- B%s  W%s  K%s'%(block_stats[PLAYER1],block_stats[PLAYER2],block_stats[KING_VALUE]))  
-        return stats, block_stats
+        
+        for pfl in possible_free_line:
+            if pos[pfl].sum() == 0:
+                free_esc_seg += 1
+
+        return np.asarray([np.asarray(stats[x], dtype=int) for x in stats]), np.asarray([np.asarray(block_stats[x], dtype=int) for x in block_stats]), free_esc_seg
+
+
     # get stats about the king position
     # [escape distance, capturable, # move for capturing, free els around k, b pieces around k, w pieces around k, b 1 move to king, w 1 move to king]
     @classmethod
@@ -372,4 +372,50 @@ class Board(object):
                 if (segment == drug_segment).all() and segment[-1]==player:
                     return True
         return False
-                    
+    
+
+blacks = np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,1,0,0,0,0],
+                   [0,1,0,0,0,0,0,0,0],
+                   [1,0,0,0,0,0,0,0,1],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,1,0,0,0,1],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,1,0,1,1,0,0,0]])
+whites = np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,1,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,1,0,0,0],
+                   [0,1,1,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]])
+king  =  np.array([[0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,1,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0],
+                   [0,0,0,0,0,0,0,0,0]])
+pos6 = {PLAYER1:blacks, PLAYER2: (whites,king)}
+b = Board(pos6, PLAYER2)
+print(b)
+stats, block_stats, free_esc_seg = b.escape_el_stats(b.pos)
+print(type(stats.flatten()))
+print(block_stats.flatten())
+print(free_esc_seg)
+
+
+ooo = np.concatenate(stats.flatten(), block_stats.flatten())
+"""
+weights={
+    1:[ winning els occupied from B, 1 move to occupied for B, # winning els occupied from W, 1 move to occupied for W, # winning els occupied from K, 1 move to occupied for K, 
+     B block B to w_e, B block W to w_e, B block K to w_e, W block B to w_e, W block W to w_e, W block K to w_e, K block B to w_e, K block W to w_e, K block K to w_e, free line seg]
+    2:[]
+    3:[]
+}
+"""

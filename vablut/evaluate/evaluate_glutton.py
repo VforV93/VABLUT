@@ -7,8 +7,8 @@ class Evaluator_glutton(Evaluator):
         super(Evaluator_glutton, self).__init__(weights)
         
     def evaluate(self, board):
-        scores = {PLAYER1: np.zeros(len(self.weights), dtype=int),
-                  PLAYER2: np.zeros(len(self.weights), dtype=int)}
+        scores = {PLAYER1: np.zeros(len(self.weights[PLAYER1]), dtype=int),
+                  PLAYER2: np.zeros(len(self.weights[PLAYER2]), dtype=int)}
         
         if board.end is not None:
             if board.end == DRAW:
@@ -19,6 +19,7 @@ class Evaluator_glutton(Evaluator):
                 return -INF
         
         n_pieces = board.number_pieces(board.pos)
+
         scores[PLAYER1][0] = n_pieces[0]
         scores[PLAYER2][0] = n_pieces[1]
             
