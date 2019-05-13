@@ -74,9 +74,6 @@ def evaldiff(board: Board, m, weights=None):
 
 
     score[0] = blocco_dopo - blocco
-    #print('blocco: %d'%blocco)
-    #print('blocco_dopo: %d'%blocco_dopo)
-    #print(moved_pos.reshape((9,9)))
 
     # pezzi neri vicini, # pezzi bianchi vicini, # Re di fianco
     c = np.bincount(moved_pos[cross_center_segments[TO]][1:], minlength=4)
@@ -84,61 +81,16 @@ def evaldiff(board: Board, m, weights=None):
     
     
     pos_dopo = board.pos_update_capturing(moved_pos, TO)
-    #print(pos_dopo.reshape((9,9)))
 
     # avversari attaccabili 1 mossa, # Re attaccabile 1 mossa
     for seg in possible_move_segments[TO]:
         line = pos_dopo[seg]
         if line[0] == board.stm and (line[-1] == board.other or line[-1] == KING_VALUE):
             c = np.bincount(line[1:], minlength=4)
-            #print(line[1:])
             if c[1:].sum() == 1:
                 if line[-1] == board.other:
                     score[4] += 1
                 else:
                     score[5] += 1
-                #print('OKKKKKKKKKKKK')
-            #print(c[1:])
 
     return np.dot(weights[board.stm],score)
-    #print(score)
-    #print(np.dot(weights[board.stm],score))
-
-
-"""
-blacks = np.array([[0,0,0,0,1,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,1,0,0,0],
-                   [1,1,0,0,0,0,1,0,0],
-                   [0,0,0,0,0,1,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,1,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
-whites = np.array([[0,0,0,0,0,0,0,0,0],
-                   [0,0,1,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,1,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
-king  =  np.array([[0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,1,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
-pos3 = {PLAYER1:blacks, PLAYER2: (whites,king)}
-b = Board(pos3, PLAYER1, -1, 65)
-#print(b)
-evaldiff(b, ('D8','C8') )
-
-n1 = np.array([ 3, 2, 4, 15, 5, 12, 0 ], dtype=int)
-n2 = np.array([ 3, 2, 4, 15, 5, 12, 0], dtype=int)
-print((n1 * n2).sum())
-#print(np.dot(n1,n2))"""

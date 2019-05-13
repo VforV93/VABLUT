@@ -6,7 +6,7 @@ INF = 10000
 
 class Evaluator(object):
     def __init__(self, weights):
-        self._weights = np.asarray(weights)
+        self._weights = weights
         
     @property
     def weights(self):

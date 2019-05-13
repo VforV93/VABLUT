@@ -2,7 +2,6 @@
 import numpy as np
 from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments
 from vablut.modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
-from random import shuffle
 
 COL = int(len(_indices[0]))
 ROW = int(len(_indices.transpose()[0]))
@@ -246,7 +245,6 @@ class Board(object):
                 board = self.pos_update(board, smove[0])
                 if board[smove].sum() == original_board[smove[0]]:
                     ret.append(self.coordinates_int_to_string((smove[0], smove[-1])))
-        shuffle(ret)
         return ret
         
     #Conversion from ('0-48', '0-48') to ('letter''number', 'letter''number')
@@ -283,6 +281,9 @@ class Board(object):
     
     def hashkey(self):
         return hash(str(self.pos))
+    
+    def cachehashkey(self):
+        pass
     
     # === === === Method for Evaluator purpose === === ===
     #Return [# black pieces, # white pieces(king excluded)]
@@ -330,7 +331,11 @@ class Board(object):
                 free_esc_seg += 1
 
         return np.asarray([np.asarray(stats[x], dtype=int) for x in stats]), np.asarray([np.asarray(block_stats[x], dtype=int) for x in block_stats]), free_esc_seg
-
+    """[winning els occupied from B, 1 move to occupied for B, # winning els occupied from W, 
+       1 move to occupied for W, # winning els occupied from K, 1 move to occupied for K, 
+     B block B to w_e, B block W to w_e, B block K to w_e, 
+     W block B to w_e, W block W to w_e, W block K to w_e, 
+     K block B to w_e, K block W to w_e, K block K to w_e, free line seg]"""
 
     # get stats about the king position
     # [escape distance, capturable, # move for capturing, free els around k, b pieces around k, w pieces around k, b 1 move to king, w 1 move to king]
@@ -372,50 +377,3 @@ class Board(object):
                 if (segment == drug_segment).all() and segment[-1]==player:
                     return True
         return False
-    
-
-blacks = np.array([[0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,0],
-                   [0,1,0,0,0,0,0,0,0],
-                   [1,0,0,0,0,0,0,0,1],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,1,0,0,0,1],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,1,0,1,1,0,0,0]])
-whites = np.array([[0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,1,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,1,0,0,0],
-                   [0,1,1,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
-king  =  np.array([[0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,1,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0],
-                   [0,0,0,0,0,0,0,0,0]])
-pos6 = {PLAYER1:blacks, PLAYER2: (whites,king)}
-b = Board(pos6, PLAYER2)
-print(b)
-stats, block_stats, free_esc_seg = b.escape_el_stats(b.pos)
-print(type(stats.flatten()))
-print(block_stats.flatten())
-print(free_esc_seg)
-
-
-ooo = np.concatenate(stats.flatten(), block_stats.flatten())
-"""
-weights={
-    1:[ winning els occupied from B, 1 move to occupied for B, # winning els occupied from W, 1 move to occupied for W, # winning els occupied from K, 1 move to occupied for K, 
-     B block B to w_e, B block W to w_e, B block K to w_e, W block B to w_e, W block W to w_e, W block K to w_e, K block B to w_e, K block W to w_e, K block K to w_e, free line seg]
-    2:[]
-    3:[]
-}
-"""

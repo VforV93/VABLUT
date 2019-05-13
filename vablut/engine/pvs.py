@@ -33,8 +33,8 @@ class PVSEngine(AlphaBetaEngine):
             elif not bestmove:
                 bestmove = [m] + nextmoves
 
-            #if self._counters['nodes']%1000==0 and self._verbose:
-            #    self.showstats(bestmove, bestscore)
+            if self._counters['nodes']%1000==0 and self._verbose:
+                self.showstats(bestmove, bestscore)
 
             if bestscore >= beta:
                 self.inc('betacuts')
