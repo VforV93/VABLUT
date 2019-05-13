@@ -283,7 +283,7 @@ class Board(object):
         return hash(str(self.pos))
     
     def cachehashkey(self):
-        pass
+        return hash(str(self.pos)),False
     
     # === === === Method for Evaluator purpose === === ===
     #Return [# black pieces, # white pieces(king excluded)]
