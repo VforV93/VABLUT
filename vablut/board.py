@@ -114,10 +114,10 @@ class Board(object):
         
         #FROM piece must be a self.stm piece(if stm == PLAYER2, FROM can be W or K)
         if not ((self.stm == PLAYER1 and check_pos.flatten()[FROM] == self.stm) or (self.stm == PLAYER2 and (check_pos.flatten()[FROM] == self.stm or check_pos.flatten()[FROM] == KING_VALUE))):
-            raise WrongMoveError('Not Permitted: FROM Value not Player_%s'%self.stm)
+            raise WrongMoveError('move:%s Not Permitted: FROM Value not Player_%s'%(str(m),str(self.stm)))
         #TO must be empty to move on a piece
         if not (check_pos.flatten()[TO] == 0):
-            raise WrongMoveError('Not Permitted: TO Value not empty')
+            raise WrongMoveError('move:%s Not Permitted: TO Value not empty'%(str(m)))
             
         check_drug_pos = self.pos_update(check_pos, FROM)
 
@@ -283,7 +283,7 @@ class Board(object):
         return hash(str(self.pos))
     
     def cachehashkey(self):
-        return hash(str(self.pos)),False
+        return hash(str(self.pos)+str(self.stm)),False
     
     # === === === Method for Evaluator purpose === === ===
     #Return [# black pieces, # white pieces(king excluded)]

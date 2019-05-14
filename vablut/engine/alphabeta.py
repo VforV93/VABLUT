@@ -1,5 +1,6 @@
 from vablut.evaluate.base import INF
 from vablut.engine.negamax import NegamaxEngine
+from vablut.engine.cached import CachedEngineMixin
 
 class AlphaBetaEngine(NegamaxEngine):
     FORMAT_STAT = (
@@ -18,7 +19,7 @@ class AlphaBetaEngine(NegamaxEngine):
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, hint=None):
         self.inc('nodes')
-
+        print('SEARCH ALPHABETA')
         if board.end is not None:
             return self.endscore(board, ply)
 
@@ -37,8 +38,8 @@ class AlphaBetaEngine(NegamaxEngine):
             elif not bestmove:
                 bestmove = [m] + nextmoves
 
-            #if self._counters['nodes']%1000==0 and self._verbose:
-            #    self.showstats(bestmove, bestscore)
+            if self._counters['nodes']%1000==0 and self._verbose:
+                self.showstats(bestmove, bestscore)
 
             if bestscore >= beta:
                 self.inc('betacuts')
@@ -48,3 +49,19 @@ class AlphaBetaEngine(NegamaxEngine):
 
     def __str__(self):
             return 'AlphaBeta(%s)' % self._maxdepth
+
+class ABCachedEngine(CachedEngineMixin, AlphaBetaEngine):
+    FORMAT_STAT = (
+        'score: {score} [time: {time:0.3f}s, pv: {pv}]\n' +
+        'nps: {nps}, nodes: {nodes}, betacuts: {betacuts}\n' +
+        'hits: {hits}, leaves: {leaves}, draws: {draws}, mates: {mates}'
+        )
+
+    def initcnt(self):
+        super(ABCachedEngine, self).initcnt()
+        self._counters['hits'] = 0
+        self._counters['cache_len'] = len(self._cache._cache)
+
+    def __str__(self):
+        return 'ABCache(%s)' % self._maxdepth
+    

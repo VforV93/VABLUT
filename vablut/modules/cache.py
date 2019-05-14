@@ -11,6 +11,7 @@ class Cache(object):
     LOWERBOUND = object()
     
     def __init__(self, maxitems=50000):
+        print('NEW CACHE!!!')
         self._maxitems = maxitems
         self._cache = OrderedDict()
         

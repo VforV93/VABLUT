@@ -45,6 +45,8 @@ class NegamaxEngine(GreedyEngine):
 
     def choose(self, board):
         self.initcnt()
+        #print(board.pos)
+        #print(board.get_all_moves())
         pv, score = self.search(board, self._maxdepth)
 
         if self._verbose:
