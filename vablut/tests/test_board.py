@@ -1071,6 +1071,7 @@ def test_move():
     assert (b_16.pos.flatten() == b_16_pos.flatten()).all()
     print(b_16)
 
-#boardP1 = Board(pos1, PLAYER1)
-test_move()
+boardP1 = Board(pos1, PLAYER1)
+print(boardP1)
+#test_move()
 #print(boardP1.capture_segments(boardP1, PLAYER1))

@@ -11,7 +11,6 @@ class HumanEngine(Engine):
         print(board)
         while True:
             try:
-
                 FROM = input('Your move: ')
                 TO = input('Your move: ')
                 move = (FROM.upper(),TO.upper())
