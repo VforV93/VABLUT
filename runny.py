@@ -17,15 +17,15 @@ from vablut.evaluate.evaluate_escapist import Evaluator_escapist
 from vablut.engine.greedy import WeightedGreedyEngine
 
 def main():
-    """ 
+    
     ev_g = Evaluator_glutton()
     ee = Evaluator_escapist()
     mo = MoveOrder('diff')
 
-    p1 = ABCachedEngine(ee, mo, 3)
-    #p2 = PVSEngine(ev_g, mo, 3)
-    #gh = GameHandler(p1,p2,True)
-    #gh.play()
+    p1 = ABCachedEngine(ee, mo, 3) #NERO
+    p2 = PVSEngine(ev_g, mo, 3)    #BIANCO
+    gh = GameHandler(p1,p2,True)
+    gh.play()
 
     #gh= GameJavaHandler(AlphaBetaEngine(Evaluator_glutton([1]), MoveOrder('diff'), 4), 'black', True)
     #gh.play()
@@ -41,7 +41,7 @@ def main():
     #eng  = WeightedGreedyEngine(ev_g)
     #eng = AlphaBetaEngine(ev_g, mo, 3)
     p1 = ABCachedEngine(ee, mo, 3)
-    print(p1.choose(b))
+    print(p1.choose(b))""" 
 
 if __name__ == '__main__':
     main()

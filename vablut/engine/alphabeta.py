@@ -19,7 +19,6 @@ class AlphaBetaEngine(NegamaxEngine):
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, hint=None):
         self.inc('nodes')
-        print('SEARCH ALPHABETA')
         if board.end is not None:
             return self.endscore(board, ply)
 
@@ -54,7 +53,7 @@ class ABCachedEngine(CachedEngineMixin, AlphaBetaEngine):
     FORMAT_STAT = (
         'score: {score} [time: {time:0.3f}s, pv: {pv}]\n' +
         'nps: {nps}, nodes: {nodes}, betacuts: {betacuts}\n' +
-        'hits: {hits}, leaves: {leaves}, draws: {draws}, mates: {mates}'
+        'hits: {hits}[{cache_len}], leaves: {leaves}, draws: {draws}, mates: {mates}'
         )
 
     def initcnt(self):

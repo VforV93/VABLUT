@@ -9,7 +9,31 @@ class CachedEngineMixin(object):
         self._cache = Cache()
         
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF):
-        print('SEARCH CACHED')
+        hit, move, score = self._cache.lookup(board, depth, ply, alpha, beta)
+        if hit:
+            self.inc('hits')
+            if move is not None:
+                move = [move]
+            else:
+                move = []
+            return move, score
+        else:
+            move, score = super(CachedEngineMixin, self).search(board, depth, ply, alpha, beta, hint=move)
+            self._cache.put(board, move, depth, ply, score, alpha, beta)
+            self._counters['cache_len'] = len(self._cache._cache)
+            return move, score
+
+
+
+
+
+
+class CachedEngineMixinC4(object):
+    def __init__(self, *args, **kwargs):
+        super(CachedEngineMixin, self).__init__(*args, **kwargs)
+        self._cache = Cache()
+        
+    def search(self, board, depth, ply=1, alpha=-INF, beta=INF):
         hit, move, score = self._cache.lookup(board, depth, ply, alpha, beta)
         if hit:
             self.inc('hits')
