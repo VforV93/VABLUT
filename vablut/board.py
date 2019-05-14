@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments
+from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments, near_center_segments
 from vablut.modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
 from random import shuffle
 
@@ -362,4 +362,11 @@ class Board(object):
                 if (segment == drug_segment).all() and segment[-1]==player:
                     return True
         return False
+    # Returns the number of empty boxes, white pieces, black pieces and eventually the king in the 8 blocks around the cell reached by a possible move
+    @classmethod
+    def pieces_around(cls, pos, index):
+        pos = pos.flatten()
+        c = np.bincount(pos[near_center_segments[index][1:]], minlength=4)
+        print(c)
+        return c
                     
