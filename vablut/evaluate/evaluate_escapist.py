@@ -3,9 +3,9 @@ from vablut.board import Board, PLAYER1, PLAYER2, DRAW
 from vablut.evaluate.base import Evaluator, INF
 from vablut.evaluate.evaluate_glutton import Evaluator_glutton
 
-class Evaluator_escapist(Evaluator_glutton):
-    def __init__(self, weights={1:np.asarray([2,1,-1,-1,-150,-100,0,1,12,-1,0,-2,0,0,0,-55]),
-                                2:np.asarray([-10,-1,1,0,150,150,0,-1,-5,2,0,-10,0,0,0,100])}):
+class Evaluator_escapist(Evaluator):
+    def __init__(self, weights={1:np.asarray([2,1,-1,-1,-150,-100,0,1,12,-1,0,-2,0,0,0,-700]),
+                                2:np.asarray([-2,-1,1,0,150,150,0,-1,-5,2,0,-10,0,0,0,100])}):
         super(Evaluator_escapist, self).__init__(weights)
 
     def evaluate(self, board):        
@@ -29,8 +29,6 @@ class Evaluator_escapist(Evaluator_glutton):
         s2 = (self.weights[PLAYER2] * scores[PLAYER2]).sum()
         
         score = s1 - s2
-        s = super(Evaluator_escapist, self).evaluate(board)
-        score += s
         if board.stm == PLAYER1:
             return score
         else:
