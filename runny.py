@@ -20,9 +20,8 @@ from vablut.evaluate.evaluate_gl_esc import Evaluator_gl_esc
 from vablut.engine.greedy import WeightedGreedyEngine
 
 def main():
-    """
     ev_g = Evaluator_glutton({1:[30], 2:[1]})
-    ee = Evaluator_escapist()
+    #ee = Evaluator_escapist()
     ege = Evaluator_gl_esc([{1:[1], 2:[50]}, None])
     mo = MoveOrder('diff')
     
@@ -67,7 +66,8 @@ def main():
     '''
     b = Board(draw_dic = {})
     b = b.move(('E4','H4'))
-    print(b)
+    #for a,b in b.cachehashsimmkey():
+    #    print(a,b)
     
     ev_g = Evaluator_glutton({1:[1],2:[3]})
     ee = Evaluator_escapist()
@@ -77,8 +77,8 @@ def main():
     
     #eng  = WeightedGreedyEngine(ev_g)
     #eng = AlphaBetaEngine(ev_g, mo, 3)
-    p1 = ABCachedTimeEngine(ege, mo, 3, max_sec=10)
+    p1 = ABCachedTimeEngine(ege, mo, 3)
     print(b.move(p1.choose(b)))
-    
+    """
 if __name__ == '__main__':
     main()

@@ -278,12 +278,76 @@ class Board(object):
         FROM, TO = ((int(FROM[1])-1)*col)+alp[FROM[0]]-1, ((int(TO[1])-1)*col)+alp[TO[0]]-1 
         return (FROM, TO)
     #===---===---===---===---===---===---===---===---===---===---===---===
-    
+    @classmethod
+    def coordinates_transformation(cls, move, t):
+        tran = {
+            'VF':   cls.VF,
+            'HF':   cls.HF,
+            'LR':   cls.LR,
+            'LRVF': cls.LRVF,
+            'LRHF': cls.LRHF,
+            'LRLR': cls.LRLR,
+            'LRLRLR':cls.LRLRLR
+        }
+        if t not in tran:
+            raise ValueError(t)
+
+        indices  = _indices.copy()
+        move_int = cls.coordinates_string_to_int(move)
+        tran_indices = tran[t](indices).flatten()
+        FROM = indices.flatten()[tran_indices == move_int[0]] #[tran_indices == ]
+        TO   = indices.flatten()[tran_indices == move_int[1]] #[tran_indices == move_int[1]]
+        return cls.coordinates_int_to_string((FROM[0],TO[0]))
+
     def hashkey(self):
         return hash(str(self.pos))
     
     def cachehashkey(self):
         return hash(str(self.pos)+str(self.stm))
+
+    @classmethod
+    def VF(cls, pos):
+        return np.flip(pos, 1)
+
+    @classmethod
+    def HF(cls, pos):
+        return np.flip(pos, 0)
+    
+    @classmethod
+    def LR(cls, pos):
+        return np.rot90(pos)
+
+    @classmethod
+    def LRVF(cls, pos):
+        return cls.VF(cls.LR(pos))
+    
+    @classmethod
+    def LRHF(cls, pos):
+        return cls.HF(cls.LR(pos))
+
+    @classmethod
+    def LRLR(cls, pos):
+        return np.rot90(pos,2)
+    
+    @classmethod
+    def LRLRLR(cls, pos):
+        return np.rot90(pos,3)
+
+    def cachehashsimmkey(self):
+        tran = {
+            'VF':   self.VF,
+            'HF':   self.HF,
+            'LR':   self.LR,
+            'LRVF': self.LRVF,
+            'LRHF': self.LRHF,
+            'LRLR': self.LRLR,
+            'LRLRLR':self.LRLRLR
+        }
+
+        yield self.cachehashkey(), False
+        for tp, func in tran.items():
+            yield hash(str(func(self.pos).flatten())+str(self.stm)), tp
+        
     
     # === === === Method for Evaluator purpose === === ===
     #Return [# black pieces, # white pieces(king excluded)]
