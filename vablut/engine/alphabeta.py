@@ -75,4 +75,4 @@ class ABCachedTimeEngine(ABCachedEngine):
         if self._max_sec and (time.time() - self._startt) > (self._max_sec-0.5):
             return [], self.evaluate(board) 
 
-        return super(ABCachedTimeEngine, self).search(board, depth, ply=1, alpha=-INF, beta=INF)
+        return super(ABCachedTimeEngine, self).search(board, depth, ply, alpha, beta)

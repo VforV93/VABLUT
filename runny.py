@@ -26,7 +26,7 @@ def main():
     mo = MoveOrder('diff')
     
     p1 = ABCachedTimeEngine(ege, mo, 3, max_sec=10)   #NERO
-    p2 = PVSCachedEngine(ev_g, mo, 3)     #BIANCO
+    p2 = PVSCachedEngine(ev_g, mo, 2)     #BIANCO
     gh = GameHandler(p1,p2,True)
     gh.play()
 

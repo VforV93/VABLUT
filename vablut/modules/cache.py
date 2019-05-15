@@ -65,7 +65,7 @@ class Cache(object):
         #if flip and entry.move is not None:
         if entry.move is not None:
             move = entry.move
-            pass #move = 6 - entry.move
+            #pass #move = 6 - entry.move
         else:
             move = entry.move
 
@@ -92,9 +92,7 @@ class CacheSimm(object):
             move = moves[0]
         else:
             move = None
-        #if flip and move is not None:
-        #    pass #move=6-move move conversion from flipped board to exact board
-            
+ 
         if depth == 0 or depth == -1 or alpha < score < beta:
             state = Cache.EXACT
         elif score >= beta:
