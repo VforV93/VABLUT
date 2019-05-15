@@ -15,14 +15,14 @@ class Cache(object):
         self._cache = OrderedDict()
         
     def put(self, board, moves, depth, ply, score, alpha=-INF, beta=INF):
-        key, flip = board.cachehashkey()
+        key = board.cachehashkey()
         
         if moves:
             move = moves[0]
         else:
             move = None
-        if flip and move is not None:
-            pass #move=6-move move conversion from flipped board to exact board
+        #if flip and move is not None:
+        #    pass #move=6-move move conversion from flipped board to exact board
             
         if depth == 0 or depth == -1 or alpha < score < beta:
             state = Cache.EXACT
@@ -41,9 +41,10 @@ class Cache(object):
         
         if len(self._cache) > self._maxitems:
             self._cache.popitem(last=False)
+
     
     def lookup(self, board, depth, ply, alpha=-INF, beta=INF):
-        key, flip = board.cachehashkey()
+        key = board.cachehashkey()
         
         if key not in self._cache:
             return False, None, None
@@ -61,7 +62,8 @@ class Cache(object):
             elif entry.state is Cache.UPPERBOUND and entry.score <= alpha:
                 hit = True
         
-        if flip and entry.move is not None:
+        #if flip and entry.move is not None:
+        if entry.move is not None:
             pass #move = 6 - entry.move
         else:
             move = entry.move

@@ -1,5 +1,6 @@
 from vablut.evaluate.base import INF
 from vablut.engine.alphabeta import AlphaBetaEngine
+from vablut.engine.cached import CachedEngineMixin
 
 class PVSEngine(AlphaBetaEngine):
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, hint=None):
@@ -33,7 +34,7 @@ class PVSEngine(AlphaBetaEngine):
             elif not bestmove:
                 bestmove = [m] + nextmoves
 
-            if self._counters['nodes']%1000==0 and self._verbose:
+            if self._verbose and self._counters['nodes']%1000==0:
                 self.showstats(bestmove, bestscore)
 
             if bestscore >= beta:
@@ -44,3 +45,18 @@ class PVSEngine(AlphaBetaEngine):
 
     def __str__(self):
         return 'PVS(%s)' % self._maxdepth
+
+class PVSCachedEngine(CachedEngineMixin, PVSEngine):
+    FORMAT_STAT = (
+        'score: {score} [time: {time:0.3f}s, pv: {pv}]\n' +
+        'nps: {nps}, nodes: {nodes}, betacuts: {betacuts}\n' +
+        'hits: {hits}[{cache_len}], leaves: {leaves}, draws: {draws}, mates: {mates}'
+        )
+
+    def initcnt(self):
+        super(PVSCachedEngine, self).initcnt()
+        self._counters['hits'] = 0
+        self._counters['cache_len'] = len(self._cache._cache)
+        
+    def __str__(self):
+        return 'PVSCache(%s)' % self._maxdepth

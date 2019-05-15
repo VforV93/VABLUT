@@ -1,3 +1,4 @@
+import time
 from vablut.evaluate.base import INF
 from vablut.engine.negamax import NegamaxEngine
 from vablut.engine.cached import CachedEngineMixin
@@ -63,4 +64,15 @@ class ABCachedEngine(CachedEngineMixin, AlphaBetaEngine):
 
     def __str__(self):
         return 'ABCache(%s)' % self._maxdepth
-    
+
+
+class ABCachedTimeEngine(ABCachedEngine):
+    def __init__(self, *args, max_sec=None, **kwargs):
+        super(ABCachedTimeEngine, self).__init__(*args, **kwargs)
+        self._max_sec = max_sec
+
+    def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
+        if self._max_sec and (time.time() - self._startt) > (self._max_sec-0.5):
+            return [], self.evaluate(board) 
+
+        return super(ABCachedTimeEngine, self).search(board, depth, ply=1, alpha=-INF, beta=INF)
