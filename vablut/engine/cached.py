@@ -26,6 +26,10 @@ class CachedEngineMixin(object):
         print(self.FORMAT_STAT.format(**ctx))
         
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF):
+
+        if board.end is not None:
+            return self.endscore(board, ply)
+
         hit, move, score = self._cache.lookup(board, depth, ply, alpha, beta)
         if hit:
             self.inc('hits')

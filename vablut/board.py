@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import numpy as np
-from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments, near_center_segments
+from vablut.modules.tables import _indices, move_segments, capture_segments, rev_segments, possible_move_segments, near_center_segments, cross_center_segments
 from vablut.modules.ashton import PLAYER1, PLAYER2, DRAW, COMPUTE, KING_VALUE, throne_el, blacks, whites, king, king_capture_segments, winning_el, prohibited_segments, capturing_dic
 
 COL = int(len(_indices[0]))
@@ -415,33 +415,44 @@ class Board(object):
             ret = np.zeros(len(k_capture_s), dtype=bool)
             num_moves = 0
             for i,nex_to_k in enumerate(k_capture_s):
-                print('checking:%s'%nex_to_k)
                 if pos[nex_to_k] == PLAYER1:
                     ret[i] = True
                 elif cls.pos_reachable_by_player(pos, nex_to_k, PLAYER1):
                     ret[i] = True
                     num_moves += 1
-                    print(ret)
-            print('moves:%s'%num_moves)
             if (ret == True).all():
                 stats[1] = True
             if (stats[2]== 0 or stats[2]>num_moves) and num_moves>0:
                 stats[2]=num_moves
-        print(stats)
+
+        # 3,4,5
+        pos_drug = cls.pos_update(pos, king_i)
+        c = np.bincount(pos[cross_center_segments[king_i]][1:], minlength = 4)
+        stats[3] = c[0]
+        stats[4] = c[1]
+        stats[5] = c[2]
+
+        for ind_near in cross_center_segments[king_i][1:]:
+            if not pos_drug[ind_near]:
+                stats[6] += cls.pos_reachable_by_player(pos, ind_near, PLAYER1)
+                stats[7] += cls.pos_reachable_by_player(pos, ind_near, PLAYER2)
+
+    
     # True if the board index is empty and reachable in 1 move by the player[PLAYER1, PLAYER2 or KING_VALUE]
     @classmethod
     def pos_reachable_by_player(cls, pos, index, player):
         pos = pos.flatten()
+        ret = 0
         if pos[index]:#index already occupied, return False
-            return False      
+            return ret      
         for move in possible_move_segments[index]:
             segment = pos[move]
             if segment[-1] and np.bincount(segment[segment!=0]).sum() == 1:
                 drug_pos     = cls.pos_update(pos, move[-1])
                 drug_segment = drug_pos[move]
                 if (segment == drug_segment).all() and segment[-1]==player:
-                    return True
-        return False
+                    ret += 1
+        return ret
 
     # Returns the number of empty boxes, white pieces, black pieces and eventually the king in the 8 blocks around the cell reached by a possible move
     @classmethod

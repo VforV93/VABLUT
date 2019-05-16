@@ -1,5 +1,6 @@
 import numpy as np 
 
-from vablut.modules.cache import Cache, CacheSimm
+a = 1
 
-
+if not a:
+    print('ooo')

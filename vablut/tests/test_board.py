@@ -1099,3 +1099,36 @@ def test_coordinate_transformation():
     assert Board.coordinates_transformation(m3,'LRLR')   == ('I2','G2'),"the move: %s with the %s transformation should be %s"%(m3,'LRLR',('E5','C5'))
     assert Board.coordinates_transformation(m3,'LRLRLR') == ('B1','B3'),"the move: %s with the %s transformation should be %s"%(m3,'LRLRLR',('E5','E7'))
 
+'''
+blacks = np.array([[0,0,0,0,1,0,0,0,1],
+                [0,0,0,0,1,0,0,0,0],
+                [0,0,0,0,0,1,1,0,0],
+                [0,0,0,1,0,0,0,0,0],
+                [1,1,0,0,0,0,0,0,1],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,1,0,0,0,0,1,0],
+                [0,0,0,0,1,0,1,0,0],
+                [1,0,0,0,0,1,0,0,1]])
+whites = np.array([[0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,1,0,0],
+                [0,0,0,0,0,1,1,0,0],
+                [0,0,0,1,1,0,0,0,0],
+                [0,0,0,0,1,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0]])
+king  =  np.array([[0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,1,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0],
+                [0,0,0,0,0,0,0,0,0]])
+pos = {PLAYER1:blacks, PLAYER2: (whites,king)}
+b = Board(pos, PLAYER1)
+print(b)
+b.king_stats(b.pos)
+'''

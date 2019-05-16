@@ -1,3 +1,4 @@
+import time
 from vablut.evaluate.base import INF
 from vablut.engine.alphabeta import AlphaBetaEngine
 from vablut.engine.cached import CachedEngineMixin
@@ -60,3 +61,17 @@ class PVSCachedEngine(CachedEngineMixin, PVSEngine):
         
     def __str__(self):
         return 'PVSCache(%s)' % self._maxdepth
+
+
+class PVSCachedTimeEngine(PVSCachedEngine):
+    def __init__(self, *args, max_sec=None, **kwargs):
+        super(PVSCachedTimeEngine, self).__init__(*args, **kwargs)
+        self._max_sec = max_sec
+
+    def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
+        if self._max_sec and (time.time() - self._startt) > (self._max_sec-1):
+            return [], self.evaluate(board)
+
+        return super(PVSCachedTimeEngine, self).search(board, depth, ply, alpha, beta)
+
+        
