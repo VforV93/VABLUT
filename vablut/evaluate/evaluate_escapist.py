@@ -4,8 +4,8 @@ from vablut.evaluate.base import Evaluator, INF
 from vablut.evaluate.evaluate_glutton import Evaluator_glutton
 
 class Evaluator_escapist(Evaluator):
-    def __init__(self, weights={1:np.asarray([2,1,-1,-1,-150,-100,0,1,12,-1,0,-2,0,0,0,-50,0,-20]),
-                                2:np.asarray([-2,-1,1,0,150,150,0,-1,-5,2,0,-10,0,0,0,100,-5,0])}):
+    def __init__(self, weights={1:np.asarray([2,1,0,0,0,  0,  0,1,12,0,0,-2, 0,0,0,0,  0,-5]),
+                                2:np.asarray([0,0,1,0,150,150,0,0,0, 2,0,-10,0,0,0,50,-5,0])}):
         super(Evaluator_escapist, self).__init__(weights)
 
     def evaluate(self, board):        
@@ -34,15 +34,11 @@ class Evaluator_escapist(Evaluator):
         else:
             return -score
 
-"""
-weights={
-    1:[ winning els occupied from B, 1 move to occupied for B, # winning els occupied from W, 
-       1 move to occupied for W, # winning els occupied from K, 1 move to occupied for K, 
-     B block B to w_e, B block W to w_e, B block K to w_e, 
-     W block B to w_e, W block W to w_e, W block K to w_e, 
-     K block B to w_e, K block W to w_e, K block K to w_e, 
-     free muerte escape line, # muerte line with just B, # muerte line with just W]
-    2:[]
-    3:[]
-}
-"""
+'''
+# winning els occupied from B , 1 move to occupied for B        , # winning els occupied from W, 
+# 1 move to occupied for W    , # winning els occupied from K   , 1 move to occupied for K, 
+# B block B to w_e            , B block W to w_e                , B block K to w_e, 
+# W block B to w_e            , W block W to w_e                , W block K to w_e, 
+# K block B to w_e            , K block W to w_e                , K block K to w_e, 
+# free muerte escape line     , # muerte line with just B       , # muerte line with just W
+'''

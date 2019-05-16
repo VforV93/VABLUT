@@ -446,6 +446,8 @@ class Board(object):
                 stats[6] += cls.pos_reachable_by_player(pos, ind_near, PLAYER1)
                 stats[7] += cls.pos_reachable_by_player(pos, ind_near, PLAYER2)
 
+        return stats
+
     
     # True if the board index is empty and reachable in 1 move by the player[PLAYER1, PLAYER2 or KING_VALUE]
     @classmethod

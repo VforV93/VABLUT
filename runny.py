@@ -17,12 +17,12 @@ from vablut.board import Board, PLAYER2
 from vablut.evaluate.evaluate_glutton import Evaluator_glutton
 from vablut.evaluate.evaluate_escapist import Evaluator_escapist
 from vablut.evaluate.evaluate_gl_esc import Evaluator_gl_esc
-from vablut.engine.greedy import WeightedGreedyEngine
+from vablut.evaluate.evaluate_glesc_ks import Evaluator_glesc_ks
 
 def main():
     ev_g = Evaluator_glutton({1:[30], 2:[1]})
-    ege_w = Evaluator_gl_esc([{1:[20], 2:[60]}, None])
-    ege_b = Evaluator_gl_esc([{1:[5], 2:[50]}, None])
+    ege_w = Evaluator_gl_esc([{1:[5], 2:[30]}, None])
+    ege_b = Evaluator_glesc_ks([{1:[5], 2:[20]}, None, {PLAYER2: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER1: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
     mo = MoveOrder('diff')
     
     p1 = PVSCachedTimeEngine(ege_b, mo, 3, max_sec=60, verbose=True)   #NERO
