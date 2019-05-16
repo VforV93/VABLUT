@@ -25,7 +25,7 @@ def main():
     ege = Evaluator_gl_esc([{1:[1], 2:[50]}, None])
     mo = MoveOrder('diff')
     
-    p1 = ABCachedTimeEngine(ege, mo, 3, max_sec=10)   #NERO
+    p1 = ABCachedTimeEngine(ege, mo, 3, max_sec=60)   #NERO
     p2 = PVSCachedEngine(ev_g, mo, 2)     #BIANCO
     gh = GameHandler(p1,p2,True)
     gh.play()

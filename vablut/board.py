@@ -153,8 +153,9 @@ class Board(object):
                 seg_pos[1]=0
                 check_pos[s] = seg_pos
             
-            seg_pos[seg==KING_VALUE] = PLAYER2
-            c = np.bincount(seg_pos)
+            seg_pos_cpy = seg_pos.copy()
+            seg_pos_cpy[seg_pos_cpy==KING_VALUE] = PLAYER2
+            c = np.bincount(seg_pos_cpy)
             if c[0] or len(c)!=3:
                 continue
             if c[self.stm]==2 and seg[0] == self.stm and seg[2] == self.stm:

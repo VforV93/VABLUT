@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
 import time
 from vablut.evaluate.base import INF
-from vablut.modules.cache import Cache
+from vablut.modules.cache import Cache, CacheSimm
 
 class CachedEngineMixin(object):
     def __init__(self, *args, **kwargs):
         super(CachedEngineMixin, self).__init__(*args, **kwargs)
-        self._cache = Cache()
+        self._cache = CacheSimm()
 
     def showstats(self, pv, score):
         t = time.time() - self._startt

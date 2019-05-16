@@ -72,7 +72,7 @@ class ABCachedTimeEngine(ABCachedEngine):
         self._max_sec = max_sec
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
-        if self._max_sec and (time.time() - self._startt) > (self._max_sec-0.5):
+        if self._max_sec and (time.time() - self._startt) > (self._max_sec-1):
             return [], self.evaluate(board) 
 
         return super(ABCachedTimeEngine, self).search(board, depth, ply, alpha, beta)
