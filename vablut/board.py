@@ -365,10 +365,10 @@ class Board(object):
     
     #Number of winning elements that are blocked from w/b and number of w/b pieces that can get with 1 movement
     @classmethod
-    def escape_el_stats(cls, pos): #[OCCUPIED from w, OCCUPIED from b, 1 move w to occupied, 1 move b to occupied, free escape line]
+    def escape_el_stats(cls, pos): #[OCCUPIED from w, OCCUPIED from b, 1 move w to occupied, 1 move b to occupied, free muerte escape line, # muerte line with just B, # muerte line with just W]
         stats       = {PLAYER1: np.zeros(2, dtype=int), PLAYER2: np.zeros(2, dtype=int), KING_VALUE: np.zeros(2, dtype=int)}
         block_stats = {PLAYER1: np.zeros(3, dtype=int), PLAYER2: np.zeros(3, dtype=int), KING_VALUE: np.zeros(3, dtype=int)} # b:[blocking black, blocking white, blocking king] w:same k:same
-        free_esc_seg= 0
+        free_esc_seg= np.zeros(3, dtype=int)
         possible_free_line = [_indices[2], _indices[-3], _indices.transpose()[2], _indices.transpose()[-3]]
 
         pos = pos.flatten()
@@ -392,8 +392,17 @@ class Board(object):
                             block_stats[cutted_seg[0]][segment[-1]-1] += 1
         
         for pfl in possible_free_line:
-            if pos[pfl].sum() == 0:
-                free_esc_seg += 1
+            ln_seg = pos[pfl]
+            if ln_seg.sum() == 0:
+                free_esc_seg[0] += 1
+            else:
+                ln_seg[ln_seg==KING_VALUE]=PLAYER2
+                c = np.bincount(ln_seg, minlength = 3)
+                if c[PLAYER1] == 0:
+                    free_esc_seg[2] += 1
+                elif c[PLAYER2] == 0:
+                    free_esc_seg[1] += 1
+
 
         return np.asarray([np.asarray(stats[x], dtype=int) for x in stats]), np.asarray([np.asarray(block_stats[x], dtype=int) for x in block_stats]), free_esc_seg
     """[winning els occupied from B, 1 move to occupied for B, # winning els occupied from W, 

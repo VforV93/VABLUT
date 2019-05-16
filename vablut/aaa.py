@@ -1,6 +1,6 @@
 import numpy as np 
 
-a = 1
+a = np.asarray([1,2,3,4,5], dtype=int)
 
-if not a:
-    print('ooo')
+a[a==3] = 15
+print(a)

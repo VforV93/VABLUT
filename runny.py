@@ -22,11 +22,11 @@ from vablut.engine.greedy import WeightedGreedyEngine
 def main():
     ev_g = Evaluator_glutton({1:[30], 2:[1]})
     ege_w = Evaluator_gl_esc([{1:[20], 2:[60]}, None])
-    ege_b = Evaluator_gl_esc([{1:[1], 2:[10]}, None])
+    ege_b = Evaluator_gl_esc([{1:[5], 2:[50]}, None])
     mo = MoveOrder('diff')
     
-    p1 = PVSCachedTimeEngine(ege_b, mo, 3, max_sec=60)   #NERO
-    p2 = PVSCachedTimeEngine(ege_w, mo, 3, max_sec=60)   #BIANCO
+    p1 = PVSCachedTimeEngine(ege_b, mo, 3, max_sec=60, verbose=True)   #NERO
+    p2 = PVSCachedTimeEngine(ege_w, mo, 3, max_sec=60, verbose=True)   #BIANCO
     gh = GameHandler(p1,p2,True)
     gh.play()
 
