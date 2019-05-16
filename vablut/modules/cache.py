@@ -117,6 +117,9 @@ class CacheSimm(object):
             if key not in self._cache:
                 continue
             
+            #if tran:
+            #    print('wuaoaaaa')
+
             entry = self._cache[key]
             
             hit = False
@@ -137,10 +140,12 @@ class CacheSimm(object):
                 move = entry.move
 
             if hit:
+                #print('tran: %s'%tran)
                 score = entry.score
             else:
                 score = None
-                
+        
+
             return hit, move, score
         
         return False, None, None

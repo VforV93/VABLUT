@@ -41,10 +41,6 @@ class CachedEngineMixin(object):
             return move, score
 
 
-
-
-
-
 class CachedEngineMixinC4(object):
     def __init__(self, *args, **kwargs):
         super(CachedEngineMixin, self).__init__(*args, **kwargs)

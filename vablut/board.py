@@ -347,7 +347,7 @@ class Board(object):
 
         yield self.cachehashkey(), False
         for tp, func in tran.items():
-            yield hash(str(func(self.pos).flatten())+str(self.stm)), tp
+            yield hash(str(func(self.pos))+str(self.stm)), tp
         
     
     # === === === Method for Evaluator purpose === === ===

@@ -34,7 +34,7 @@ class Evaluator_escapist(Evaluator):
         else:
             return -score
 
-
+"""
 blacks = np.array([[1,0,0,1,0,0,0,0,1],
                    [0,0,0,0,1,1,0,1,0],
                    [0,0,0,0,0,0,0,1,0],
@@ -70,7 +70,7 @@ b = b.move(('D1','D2'))
 print(b)
 print(b.move(('D5','D3')))
 #print(b.move(('E6','F6')))
-"""
+
 weights={
     1:np.asarray([6,3, -2, -1, -150, -100, 0, 1, 12, -1, 0, -2, 0, 0, 0, -55]),
     2:np.asarray([-10,-1,1,0,150,150,0,-1,-5,2,0,-10,0,0,0,100])
