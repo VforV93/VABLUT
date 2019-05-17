@@ -92,7 +92,8 @@ class PVSCachedTimeEngine(PVSCachedEngine):
 def func_thread(*args, **kwargs):
     #print('dentroooooooooooo')
     q = args[5]
-    c = Cache(initial = args[7])
+    c = CacheSimm(initial = args[7])
+    print('els in cache:%s'%str(len(c._cache)))
     engine = PVSCachedTimeEngine(args[0], args[1], args[2], max_sec = args[3], verbose = args[4], cache = c)
 
     engine.initcnt()
@@ -111,12 +112,12 @@ def func_thread(*args, **kwargs):
 class PVSCachedTimeThreadsEngine(PVSEngine):
     def __init__(self, evaluator, moveorder, maxdepth, max_sec=None, verbose=True):
         super(PVSCachedTimeThreadsEngine, self).__init__(evaluator, moveorder, maxdepth, verbose)
-        self._max_sec = max_sec
+        self._max_sec = max_sec-1
         
         self._moveorder = moveorder
         #self._res = queue.Queue()
         self._res = Queue()
-        self._cache = Cache()
+        self._cache = CacheSimm()#Cache()
 
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
@@ -124,7 +125,8 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
         pool = []
         #q = Queue()
         q = Manager().Queue()
-        count = 1
+        count = 0
+        tot = 0
         if board.end is not None:
             return self.endscore(board, ply)
 
@@ -139,7 +141,7 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
             max_sec = self._max_sec - (time.time() - self._startt)
             #mythread =  threading.Thread(name= "Thread-{}".format(count), target=func_thread, args=(self._evaluator, self._moveorder, self._maxdepth-1, max_sec, self._verbose, q, board.move(m), self._cache._cache.copy()))  # ...Instantiate a thread and pass a unique ID to it
             #mythread =  Process(target=func_thread, args=(self._evaluator, self._moveorder, self._maxdepth-1, max_sec, self._verbose, q, board.move(m), self._cache._cache.copy(), -beta, -bestscore, m))  # ...Instantiate a thread and pass a unique ID to it
-            res = p.apply_async(func_thread, (self._evaluator, self._moveorder, self._maxdepth-1, max_sec, self._verbose, q, board.move(m), self._cache._cache.copy(), -beta, -bestscore, m))  # ...Instantiate a thread and pass a unique ID to it
+            res = p.apply_async(func_thread, (self._evaluator, self._moveorder, self._maxdepth-1, max_sec, False, q, board.move(m), self._cache._cache.copy(), -beta, -bestscore, m))  # ...Instantiate a thread and pass a unique ID to it
             #res.get()
             #mythread =  Process(target=func_thread, args=(self._evaluator, self._moveorder, self._maxdepth-1, max_sec, self._verbose, q, board.move(m), self._cache._cache.copy(), -INF, INF, m))  # ...Instantiate a thread and pass a unique ID to it
             #mythread.daemon=True
@@ -147,10 +149,12 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
             #pool.append(mythread)
             #mythread.join()
             count += 1
+            tot += 1
             #print('Lanciato Thread tot:%s'%count)
 
             if count >= MAXT:
                 try:
+                    print('mosse scansionate:%s'%str(tot))
                     ti = self._max_sec - (time.time() - self._startt)
                     #print('ti:%s'%str(ti))
                     entry = q.get(timeout=ti)
@@ -169,7 +173,7 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
                     #pool = [t for t in pool if t.isAlive()]
                 except Exception as e: 
                     print(e)
-                    #print("Ho finito il tempo")
+                    print("HO FINITO IL TEMPO")
                     return bestmove, bestscore
 
                 if (time.time() - self._startt) > self._max_sec:

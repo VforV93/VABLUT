@@ -85,9 +85,12 @@ class CacheSimm(object):
     UPPERBOUND = object()
     LOWERBOUND = object()
     
-    def __init__(self, maxitems=500000):
+    def __init__(self, maxitems=500000, initial=None):
         self._maxitems = maxitems
-        self._cache = OrderedDict()
+        if initial:
+            self._cache = initial
+        else:
+            self._cache = OrderedDict()
         
     def put(self, board, moves, depth, ply, score, alpha=-INF, beta=INF):
         key = board.cachehashkey()
