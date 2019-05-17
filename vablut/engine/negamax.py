@@ -47,9 +47,9 @@ class NegamaxEngine(GreedyEngine):
         self.initcnt()
         pv, score = self.search(board, self._maxdepth)
 
-        #if self._verbose:
-        print('--- --- FINAL STATS --- ---')
-        self.showstats(pv, score)
+        if self._verbose:
+            print('--- --- FINAL STATS --- ---')
+            self.showstats(pv, score)
         
         return pv[0]
 

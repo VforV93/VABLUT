@@ -3,7 +3,7 @@ import socket
 import json
 
 import numpy as np
-from vablut.engine.random import RandomEngine
+from vablut.engine.rand import RandomEngine
 from vablut.modules.Utils import utils
 from vablut.board import Board, PLAYER1, PLAYER2, KING_VALUE, DRAW
 

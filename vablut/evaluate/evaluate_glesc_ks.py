@@ -4,7 +4,7 @@ from vablut.evaluate.base import Evaluator, INF
 from vablut.evaluate.evaluate_gl_esc import Evaluator_gl_esc
 
 class Evaluator_glesc_ks(Evaluator_gl_esc):
-    def __init__(self, weights=[None,None,{PLAYER2: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER1: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}]):
+    def __init__(self, weights=[None,None,{PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}]):
         super(Evaluator_glesc_ks, self).__init__(weights)
 
     def evaluate(self, board):

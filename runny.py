@@ -3,11 +3,11 @@
 #from sys import getsizeof
 import numpy as np
 from vablut.board import Board, PLAYER1, PLAYER2, DRAW
-from vablut.engine.random import RandomEngine
+from vablut.engine.rand import RandomEngine
 from vablut.engine.human import HumanEngine
 from vablut.engine.negamax import NegamaxEngine
 from vablut.engine.alphabeta import AlphaBetaEngine, ABCachedEngine, ABCachedTimeEngine
-from vablut.engine.pvs import PVSEngine, PVSCachedEngine, PVSCachedTimeEngine
+from vablut.engine.pvs import PVSEngine, PVSCachedEngine, PVSCachedTimeEngine, PVSCachedTimeThreadsEngine
 
 from vablut.evaluate.moveorder import MoveOrder
 from vablut.game import GameHandler
@@ -20,13 +20,14 @@ from vablut.evaluate.evaluate_gl_esc import Evaluator_gl_esc
 from vablut.evaluate.evaluate_glesc_ks import Evaluator_glesc_ks
 
 def main():
-    ev_g = Evaluator_glutton({1:[30], 2:[1]})
-    ege_w = Evaluator_gl_esc([{1:[5], 2:[30]}, None])
-    ege_b = Evaluator_glesc_ks([{1:[5], 2:[20]}, None, {PLAYER2: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER1: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
+    ev_g = Evaluator_glutton({1:[1], 2:[1]})
+    ege_w = Evaluator_glesc_ks([{1:[20], 2:[1]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
+    ege_b = Evaluator_glesc_ks([{1:[1], 2:[20]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
     mo = MoveOrder('diff')
     
-    p1 = PVSCachedTimeEngine(ege_b, mo, 3, max_sec=60, verbose=True)   #NERO
-    p2 = PVSCachedTimeEngine(ege_w, mo, 3, max_sec=60, verbose=True)   #BIANCO
+    pn = NegamaxEngine(ev_g, 1)
+    p1 = PVSCachedTimeThreadsEngine(ev_g, mo, 3, max_sec=60, verbose=True)   #NERO
+    p2 = PVSCachedTimeThreadsEngine(ege_w, mo, 3, max_sec=60, verbose=True)   #BIANCO
     gh = GameHandler(p1,p2,True)
     gh.play()
 

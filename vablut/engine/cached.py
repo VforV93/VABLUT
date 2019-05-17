@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 import time
+
 from vablut.evaluate.base import INF
 from vablut.modules.cache import Cache, CacheSimm
 
+
 class CachedEngineMixin(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, cache=None, **kwargs):
         super(CachedEngineMixin, self).__init__(*args, **kwargs)
-        self._cache = CacheSimm()
+        if not cache:
+            self._cache = CacheSimm()
+        else:
+            self._cache = cache
 
     def showstats(self, pv, score):
         t = time.time() - self._startt
@@ -42,24 +47,4 @@ class CachedEngineMixin(object):
             move, score = super(CachedEngineMixin, self).search(board, depth, ply, alpha, beta, hint=move)
             self._cache.put(board, move, depth, ply, score, alpha, beta)
             self._counters['cache_len'] = len(self._cache._cache)
-            return move, score
-
-
-class CachedEngineMixinC4(object):
-    def __init__(self, *args, **kwargs):
-        super(CachedEngineMixin, self).__init__(*args, **kwargs)
-        self._cache = Cache()
-        
-    def search(self, board, depth, ply=1, alpha=-INF, beta=INF):
-        hit, move, score = self._cache.lookup(board, depth, ply, alpha, beta)
-        if hit:
-            self.inc('hits')
-            if move is not None:
-                move = [move]
-            else:
-                move = []
-            return move, score
-        else:
-            move, score = super(CachedEngineMixin, self).search(board, depth, ply, alpha, beta, hint=move)
-            self._cache.put(board, move, depth, ply, score, alpha, beta)
             return move, score
