@@ -21,13 +21,13 @@ from vablut.evaluate.evaluate_glesc_ks import Evaluator_glesc_ks
 
 def main():
     ev_g = Evaluator_glutton({1:[1], 2:[1]})
-    ege_w = Evaluator_glesc_ks([{1:[10], 2:[5]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
-    ege_b = Evaluator_glesc_ks([{1:[1], 2:[20]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
+    ege_w = Evaluator_glesc_ks([{1:[10], 2:[3]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
+    ege_b = Evaluator_glesc_ks([{1:[2], 2:[10]}, None, {PLAYER1: np.array([0, 4, 1, 0, 1, 0, 1, 0], dtype=int), PLAYER2: np.array([0, -15, -1, 1, -1, 2, 0, 1], dtype=int)}])
     mo = MoveOrder('diff')
     
     #pn = NegamaxEngine(ev_g, 1)
-    p1 = PVSCachedTimeThreadsEngine(ege_b, mo, 3, max_sec=60, verbose=True)   #NERO
-    p2 = PVSCachedTimeThreadsEngine(ege_w, mo, 3, max_sec=60, verbose=True)   #BIANCO
+    p1 = PVSCachedTimeThreadsEngine(ege_b, mo, 4, max_sec=60, verbose=True)   #NERO
+    p2 = PVSCachedTimeThreadsEngine(ege_w, mo, 4, max_sec=60, verbose=True)   #BIANCO
     gh = GameHandler(p1,p2,True)
     gh.play()
 

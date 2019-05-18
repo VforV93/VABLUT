@@ -1,5 +1,5 @@
 import numpy as np
-from vablut.board import Board, PLAYER1, PLAYER2, DRAW
+from vablut.board import PLAYER1, PLAYER2, DRAW
 from vablut.evaluate.base import Evaluator, INF
 from vablut.evaluate.evaluate_glutton import Evaluator_glutton
 from vablut.evaluate.evaluate_escapist import Evaluator_escapist
