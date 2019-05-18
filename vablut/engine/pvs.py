@@ -95,8 +95,8 @@ def func_thread(*args, **kwargs):
 class PVSCachedTimeThreadsEngine(PVSEngine):
     def __init__(self, evaluator, moveorder, maxdepth, max_sec=None, verbose=True):
         super(PVSCachedTimeThreadsEngine, self).__init__(evaluator, moveorder, maxdepth, verbose)
-        self._max_sec = max_sec-1
-        
+        self._max_sec = max_sec-2
+        self._depthLB = maxdepth
         self._moveorder = moveorder
         self._res = Queue()
         self._cache = CacheSimm()
@@ -140,13 +140,18 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
                         bestmove = nextmoves
                 except Exception as e: 
                     print(e)
-                    print('**HO FINITO IL TEMPO** mosse [%s/%s]'%(i+1,len(board.get_all_moves())))
+                    print('**HO FINITO IL TEMPO** mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
+                    #if self._maxdepth > self._depthLB:
+                    #    self._maxdepth -= 1 
                     return bestmove, bestscore
 
                 if (time.time() - self._startt) > self._max_sec:
-                    print('mosse [%s/%s]'%(i+1,len(board.get_all_moves())))
+                    print('mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
+                    #if self._maxdepth > self._depthLB:
+                    #    self._maxdepth -= 1 
                     return bestmove, bestscore
 
 
-        print('**FINITE LE MOSSE** mosse [%s/%s]'%(i+1,len(board.get_all_moves())))
+        print('**FINITE LE MOSSE** mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
+        #self._maxdepth += 1 
         return bestmove, bestscore
