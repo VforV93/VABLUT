@@ -52,7 +52,7 @@ def main(): #python tabbrutt.py player_type [max_sec_mossa max_thread verbose] e
     if max_thread == 0:
         engine = PVSCachedTimeEngine(ege, mo, 3, max_sec=max_sec_mossa, verbose=verbose)
     else:
-        engine = PVSCachedTimeThreadsEngine(ege, mo, 3, max_sec=max_sec_mossa, verbose=verbose)
+        engine = PVSCachedTimeThreadsEngine(ege, mo, 3, max_thread, max_sec=max_sec_mossa, verbose=verbose)
 
     gh  = GameJavaHandler(engine, player_type, verbose)
     gh.play()

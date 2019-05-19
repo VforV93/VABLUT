@@ -9,7 +9,6 @@ from vablut.engine.negamax import NegamaxEngine
 
 from vablut.modules.cache import Cache, CacheSimm
 
-MAXT = 4
 
 class PVSEngine(AlphaBetaEngine):
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, hint=None):
@@ -73,7 +72,7 @@ class PVSCachedEngine(CachedEngineMixin, PVSEngine):
 class PVSCachedTimeEngine(PVSCachedEngine):
     def __init__(self, *args, max_sec=None, **kwargs):
         super(PVSCachedTimeEngine, self).__init__(*args, **kwargs)
-        self._max_sec = max_sec
+        self._max_sec = max_sec-2
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
         if self._max_sec and (time.time() - self._startt) > (self._max_sec-1):
@@ -93,14 +92,17 @@ def func_thread(*args, **kwargs):
     q.put((m, score, c))
 
 class PVSCachedTimeThreadsEngine(PVSEngine):
-    def __init__(self, evaluator, moveorder, maxdepth, max_sec=None, verbose=True):
+    def __init__(self, evaluator, moveorder, maxdepth, max_thread, max_sec=None, verbose=True):
         super(PVSCachedTimeThreadsEngine, self).__init__(evaluator, moveorder, maxdepth, verbose)
+        self._max_thread = max_thread
         self._max_sec = max_sec-2
         self._depthLB = maxdepth
+        self._depthUP = maxdepth + 1
         self._moveorder = moveorder
         self._res = Queue()
         self._cache = CacheSimm()
-        self._pool = Pool(processes=MAXT)
+        self._pool = Pool(processes=max_thread)
+        self._threshold = 25
 
 
     def search(self, board, depth, ply=1, alpha=-INF, beta=INF, max_sec=None):
@@ -116,6 +118,9 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
         bestmove = []
         bestscore = alpha
 
+        if len(board.get_all_moves()) <= self._threshold and self._threshold < self._depthUP:
+            self._maxdepth += 1
+
         for i, m in enumerate(self.moveorder(board, board.get_all_moves(), None, self._evaluator)):
             max_sec = self._max_sec - (time.time() - self._startt)
             res = self._pool.apply_async(func_thread, (self._evaluator, self._moveorder, self._maxdepth-1, max_sec, False, q, board.move(m), self._cache._cache.copy(), -beta, -bestscore, m))  # ...Instantiate a thread and pass a unique ID to it
@@ -125,7 +130,7 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
             if i == 0:
                 bestmove = [m]
                 
-            if count >= MAXT:
+            if count >= self._max_thread:
                 try:
                     ti = self._max_sec - (time.time() - self._startt)
                     entry = q.get(timeout=ti)
@@ -141,17 +146,19 @@ class PVSCachedTimeThreadsEngine(PVSEngine):
                 except Exception as e: 
                     print(e)
                     print('**HO FINITO IL TEMPO** mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
-                    #if self._maxdepth > self._depthLB:
-                    #    self._maxdepth -= 1 
+                    if self._maxdepth > self._depthLB:
+                        self._maxdepth -= 1
+                        self._threshold -= 2
                     return bestmove, bestscore
 
                 if (time.time() - self._startt) > self._max_sec:
                     print('mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
-                    #if self._maxdepth > self._depthLB:
-                    #    self._maxdepth -= 1 
+                    if self._maxdepth > self._depthLB:
+                        self._maxdepth -= 1
+                        self._threshold -= 2
                     return bestmove, bestscore
 
 
-        print('**FINITE LE MOSSE** mosse [%s/%s] - maxdepth:%s'%(i+1,len(board.get_all_moves()), self._maxdepth))
+        print('**FINITE LE MOSSE** mosse [%s/%s] - maxdepth:%s ts:%s'%(i+1,len(board.get_all_moves()), self._maxdepth, self._threshold))
         #self._maxdepth += 1 
         return bestmove, bestscore
