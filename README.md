@@ -1,8 +1,8 @@
-Progetto VABLUT per la competizione di AI - corso di studi Ingegneria informatica Bologna 2018-2019
-Nel seguente documento si vogliono dare tutte le istruzioni per l'utilizzo dell'AI
+VABLUT project made for the AI competition - Master Degree in Computer Engineering - Bologna 2018-2019
+Instruction to use the Vablut Agent
 
-package necessari sulla macchina debian:
-- python 3.5.# o superiore
+required packages:
+- python 3.5.# o higher
 [
     sudo apt update
     sudo apt install python3-pip
@@ -10,7 +10,7 @@ package necessari sulla macchina debian:
 ]
 - pip3
 
-posizionarsi sulla cartella del progetto TABBRUTT:
+in TABBRUTT folder:
 - pip3 install -r requirements.txt
 - pip3 install pytest
 - py.test
