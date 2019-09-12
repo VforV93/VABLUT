@@ -18,8 +18,9 @@ in TABBRUTT folder:
 Instructions to use the Vablut Agent
 This project doesn't include any web interface, the Server project is possible to download here: https://github.com/AGalassi/TablutCompetition.git
 - Download the java Server project and open it in eclipse(or similar)
-- Run the Server.java
+- Run the Server.java(more information about the server's execution in the github project description)
 - Run the Human.java agent
+
 - Run the Vablut AI
     - python/python3 tabbrutt.py black|white [max_sec_mossa=60 max_thread=4 verbose=False]
 [
