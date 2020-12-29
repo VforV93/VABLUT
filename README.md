@@ -1,3 +1,4 @@
+# Intelligent Agent for the [AI @ Unibo Competition](http://ai.unibo.it/games/boardgamecompetition/tablut/1819INF)
 VABLUT project made for the AI competition - Master Degree in Computer Engineering - Bologna 2018-2019
 
 Instructions to install the Vablut Agent
